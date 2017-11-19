@@ -53,11 +53,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Button.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="GS_Gameplay.cs" />
     <Compile Include="GS_Lobby.cs" />
     <Compile Include="GS_Menu.cs" />
     <Compile Include="GS_Settings.cs" />
+    <Compile Include="IClickable.cs" />
+    <Compile Include="IMouseInteraction.cs" />
+    <Compile Include="IMouseMove.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateManager.cs" />

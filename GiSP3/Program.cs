@@ -96,14 +96,6 @@ namespace DiceWars
             window.Close();
         }
 
-        static void OnButtonPress(object sender, EventArgs e)
-        {
-            if (Mouse.IsButtonPressed(Mouse.Button.Left))
-            {
-                Console.WriteLine("Left mb pressed!");
-            }
-        }
-
         //Events handled above gamestates. And in more elegant way
         static void OnKeyPress(object sender, EventArgs e)
         {
@@ -119,10 +111,11 @@ namespace DiceWars
         static void Main()
         {
             app.Closed += new EventHandler(OnClose);
-            app.MouseButtonPressed += new EventHandler<MouseButtonEventArgs>(OnButtonPress);
             app.KeyPressed += new EventHandler<KeyEventArgs>(OnKeyPress);
+            app.SetFramerateLimit(60);
 
             StateManager sm = new StateManager();
+            sm.EventsUpdate(app);
 
             while (app.IsOpen && !exit)
             {

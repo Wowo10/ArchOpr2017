@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SFML.Window;
 
 namespace DiceWars
 {
@@ -47,6 +48,28 @@ namespace DiceWars
 
             //pushing menu state
             statesqueue.Push(new GS_Menu());
+        }
+
+        public void EventsUpdate(RenderWindow window)
+        {
+            window.MouseButtonPressed += onMousePress;
+            window.MouseMoved += onMousMove;
+            window.MouseButtonReleased += onMouseButtonRelease;
+        }
+
+        private void onMouseButtonRelease(object sender, MouseButtonEventArgs e)
+        {
+            statesqueue.Peek().onRelease(e);
+        }
+
+        private void onMousMove(object sender, MouseMoveEventArgs e)
+        {
+            statesqueue.Peek().onMouseMove(e);
+        }
+
+        private void onMousePress(object sender, MouseButtonEventArgs e)
+        {
+            statesqueue.Peek().onClick(e);
         }
 
         public void PushState()
@@ -117,5 +140,6 @@ namespace DiceWars
             statesqueue.Peek().Update();
             statesqueue.Peek().Render(window);
         }
+        
     }
 }

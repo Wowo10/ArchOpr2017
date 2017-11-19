@@ -10,34 +10,42 @@ namespace DiceWars
 {
     class GS_Menu : GameState
     {
-        Color background = new Color(110, 0, 0);
-
         Sprite kek; //trial
+
+        Button toLobby;
 
         public GS_Menu() : base()
         {
+            backgroundColor = new Color(110, 0, 0);
+
             kek = new Sprite(Program.LoadTexture("knight"));
-            kek.Position = new Vector2f(50,50);
+            kek.Position = new Vector2f(50, 50);
+
+            toLobby = new Button(100, 100);
+            toLobby.setPosition(new Vector2f(100, 100));
+            toLobby.ButtonText = "toLobby";
+            mousInteractionList.Add(toLobby);
         }
 
         public override void Update()
         {
-            if(Keyboard.IsKeyPressed(Keyboard.Key.N))
+            if (Keyboard.IsKeyPressed(Keyboard.Key.C))
+            {
+                stateaction = StateActions.POP;
+            }
+
+            if (toLobby.isClicked)
             {
                 nextstate = States.GS_LOBBY;
                 stateaction = StateActions.PUSH;
-            }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.C))
-            {   
-                stateaction = StateActions.POP;
             }
         }
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(background);
-
+            window.Clear(backgroundColor);
             window.Draw(kek);
+            DrawMouseInteractive(window);
         }
     }
 }
