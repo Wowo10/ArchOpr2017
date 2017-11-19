@@ -101,7 +101,8 @@ namespace DiceWars
             statesqueue.Peek().nextstate = States.NONE;
             statesqueue.Peek().stateaction = StateActions.NONE;
 
-            statesqueue.Push(helpstate);            
+            statesqueue.Push(helpstate);
+            Console.WriteLine("Na stosie jest " + statesqueue.Count + " stanów");
         }
 
         public void PopState()

@@ -9,21 +9,31 @@ namespace DiceWars
 {
     class GS_Settings : GameState
     {
-        Color background = new Color(110, 0, 0);
+        Button toMenu;
 
         public GS_Settings() : base()
         {
+            toMenu = new Button(100, 100);
+            toMenu.ButtonText = "toMenu";
+            mousInteractionList.Add(toMenu);
 
+            backgroundColor = new Color(30, 110, 60);
+            mousInteractionList.Add(toMenu);
         }
 
         public override void Update()
         {
-            base.Update();
+            if (toMenu.isClicked)
+            {
+                nextstate = States.GS_MENU;
+                stateaction = StateActions.PUSH;
+            }
         }
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(background);
+            window.Clear(backgroundColor);
+            DrawMouseInteractive(window);
         }
     }
 }

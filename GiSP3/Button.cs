@@ -24,7 +24,6 @@ namespace DiceWars
         public Button(float x, float y) : this()
         {
             Size = new Vector2f(x, y);
-            text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.GetGlobalBounds().Height / 2);
             text.Position = new Vector2f(x / 2, y / 2);
         }
 
@@ -43,8 +42,18 @@ namespace DiceWars
             set
             {
                 text.DisplayedString = value;
-                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.GetGlobalBounds().Height / 2);
+                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize/2);
                 //TODO jeśli szerokość większa od przycisku
+            }
+        }
+
+        public uint ButtonTextSize
+        {
+            get { return text.CharacterSize; }
+            set
+            {
+                text.CharacterSize = value;
+                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize/2);
             }
         }
 
@@ -99,7 +108,7 @@ namespace DiceWars
         {
             OutlineColor = Color.White;
         }
-        
+
 
         public new void Draw(RenderTarget target, RenderStates states)
         {

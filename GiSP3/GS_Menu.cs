@@ -10,33 +10,75 @@ namespace DiceWars
 {
     class GS_Menu : GameState
     {
-        Sprite kek; //trial
-
-        Button toLobby;
+        Button toLobby, toSettings;
+        Button exitButton;
+        Text menuText, menuText2, menuText3;
 
         public GS_Menu() : base()
         {
             backgroundColor = new Color(110, 0, 0);
 
-            kek = new Sprite(Program.LoadTexture("knight"));
-            kek.Position = new Vector2f(50, 50);
+            int resx = Program.LoadIntSetting("resx");
+            int resy = Program.LoadIntSetting("resy");
 
-            toLobby = new Button(100, 100);
-            toLobby.setPosition(new Vector2f(100, 100));
+            int buttonH = 40;
+            int buttonW = 130;
+            int buttonSpace = 20;
+            toLobby = new Button(buttonW, buttonH);
+            toLobby.setPosition(new Vector2f(resx/2 - 50, resy/3 + buttonH + buttonSpace));
             toLobby.ButtonText = "toLobby";
+
+            toSettings = new Button(buttonW, buttonH);
+            toSettings.setPosition(new Vector2f(resx / 2 - 50, resy / 3 +2*(buttonH + buttonSpace)));
+            toSettings.ButtonText = "toSettings";
+
+            exitButton = new Button(30, 30);
+            exitButton.setPosition(new Vector2f(Program.LoadIntSetting("resx") - 30, 0));
+            exitButton.ButtonText = "X";
+            exitButton.ButtonTextSize = 30;
+
+            string txt = "DiceWars!";
+            uint charSize = 40;
+            Font font = Program.LoadFont("");
+
+
+            //class CuteText
+            menuText = new Text(txt, font, charSize);
+            menuText.Position = new Vector2f(resx / 2, resy / 3);
+            menuText.Origin = new Vector2f(menuText.GetGlobalBounds().Width / 2, menuText.GetGlobalBounds().Height / 2);
+            menuText.Color = Color.White;
+
+            menuText2 = new Text(txt, font, charSize);
+            menuText2.Position = new Vector2f(resx / 2 - 1, resy / 3 - 1);
+            menuText2.Origin = new Vector2f(menuText2.GetGlobalBounds().Width / 2, menuText2.GetGlobalBounds().Height / 2);
+            menuText2.Color = Color.Black;
+
+            menuText3 = new Text(txt, font, charSize);
+            menuText3.Position = new Vector2f(resx / 2 + 3, resy / 3 + 3);
+            menuText3.Origin = new Vector2f(menuText3.GetGlobalBounds().Width / 2, menuText3.GetGlobalBounds().Height / 2);
+            menuText3.Color = Color.Black;
+
             mousInteractionList.Add(toLobby);
+            mousInteractionList.Add(exitButton);
+            mousInteractionList.Add(toSettings);
         }
 
         public override void Update()
         {
-            if (Keyboard.IsKeyPressed(Keyboard.Key.C))
-            {
-                stateaction = StateActions.POP;
-            }
-
             if (toLobby.isClicked)
             {
                 nextstate = States.GS_LOBBY;
+                stateaction = StateActions.PUSH;
+            }
+
+            if (exitButton.isClicked)
+            {
+                stateaction = StateActions.POP;
+            }
+            
+            if(toSettings.isClicked)
+            {
+                nextstate = States.GS_SETTINGS;
                 stateaction = StateActions.PUSH;
             }
         }
@@ -44,7 +86,9 @@ namespace DiceWars
         public override void Render(RenderWindow window)
         {
             window.Clear(backgroundColor);
-            window.Draw(kek);
+            window.Draw(menuText2);
+            window.Draw(menuText3);
+            window.Draw(menuText);
             DrawMouseInteractive(window);
         }
     }

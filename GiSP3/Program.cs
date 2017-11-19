@@ -14,6 +14,7 @@ namespace DiceWars
         public static bool exit;
         static string settingspath;
         static string imagespath;
+        static string fontpath;
 
         static Dictionary<string, string> loadedsettings;
         public static string LoadSetting(string name)
@@ -43,13 +44,19 @@ namespace DiceWars
                         return temp[1];
                     }
                 }
-                Console.WriteLine("No Such setting: "+name);
+                Console.WriteLine("No Such setting: " + name);
             }
             else
                 Console.WriteLine("Setting read error!");
 
             //all hope is gone
             return "";
+        }
+
+        public static int LoadIntSetting(string name)
+        {
+            int x = Int32.Parse(LoadSetting(name));
+            return x;
         }
 
         //quite similar to loading settings
@@ -72,13 +79,29 @@ namespace DiceWars
             else
                 Console.WriteLine("Texture read error");
 
-            return new Texture(1,1); //empty with size x = 1 y = 1!
+            return new Texture(1, 1); //empty with size x = 1 y = 1!
+        }
+
+        public static Font LoadFont(string name)
+        {
+            Font temp;
+            if (File.Exists(fontpath + name))
+            {
+                temp = new Font(fontpath + name);
+                return temp;
+            }
+            else
+            {
+                Console.WriteLine("Nie ma takiego fontu! Zwracam domyślną wartość");
+                return new Font(fontpath + "/Font.otf");
+            }
         }
 
         static Program()
         {
             settingspath = "resources/user/settings.csv";
             imagespath = "resources/images/";
+            fontpath = "resources/fonts";
             loadedsettings = new Dictionary<string, string>();
             loadedtextures = new Dictionary<string, Texture>();
 
@@ -112,7 +135,7 @@ namespace DiceWars
         {
             app.Closed += new EventHandler(OnClose);
             app.KeyPressed += new EventHandler<KeyEventArgs>(OnKeyPress);
-            app.SetFramerateLimit(60);
+            app.SetFramerateLimit(100);
 
             StateManager sm = new StateManager();
             sm.EventsUpdate(app);
