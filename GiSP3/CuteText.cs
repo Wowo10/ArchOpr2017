@@ -25,6 +25,11 @@ namespace DiceWars
             lowerText = getText(text, charSize, font, Color.Black, lx, ly);
         }
 
+        public CuteText(string text, Vector2f position) : this(text)
+        {
+            Position = position;
+        }
+
         private Text getText(string txt, uint charSize, Font font, Color color)
         {
             Text tmp;
