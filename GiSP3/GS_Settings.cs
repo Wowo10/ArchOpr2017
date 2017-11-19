@@ -18,15 +18,13 @@ namespace DiceWars
             mousInteractionList.Add(toMenu);
 
             backgroundColor = new Color(30, 110, 60);
-            mousInteractionList.Add(toMenu);
         }
 
         public override void Update()
         {
-            if (toMenu.isClicked)
+            if (toMenu.isActive)
             {
-                nextstate = States.GS_MENU;
-                stateaction = StateActions.PUSH;
+                stateaction = StateActions.POP;
             }
         }
 

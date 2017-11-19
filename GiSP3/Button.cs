@@ -9,8 +9,10 @@ namespace DiceWars
 {
     class Button : RectangleShape, IMouseInteraction
     {
-        public bool clicked;
+        private bool clicked;
+        private bool active;
         private Font font;
+
         public Button()
         {
             font = new Font("resources/fonts/Font.otf");
@@ -42,7 +44,7 @@ namespace DiceWars
             set
             {
                 text.DisplayedString = value;
-                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize/2);
+                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize / 2);
                 //TODO jeśli szerokość większa od przycisku
             }
         }
@@ -53,7 +55,7 @@ namespace DiceWars
             set
             {
                 text.CharacterSize = value;
-                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize/2);
+                text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize / 2);
             }
         }
 
@@ -64,6 +66,21 @@ namespace DiceWars
                 if (clicked)
                 {
                     clicked = false;
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
+        //fuckfix
+        public bool isActive
+        {
+            get
+            {
+                if (active)
+                {
+                    active = false;
                     return true;
                 }
                 else
@@ -82,10 +99,13 @@ namespace DiceWars
 
         public void Released(float x, float y)
         {
-            if (clicked || GetGlobalBounds().Contains(x, y))
+            if (clicked)
             {
                 FillColor = Color.White;
                 clicked = false;
+                
+                if(GetGlobalBounds().Contains(x,y))
+                    active = true;
             }
         }
 
@@ -100,6 +120,8 @@ namespace DiceWars
                 onMouseLeave();
             }
         }
+
+        //hover
         public void onMouseEnter()
         {
             OutlineColor = Color.Black;
@@ -108,7 +130,6 @@ namespace DiceWars
         {
             OutlineColor = Color.White;
         }
-
 
         public new void Draw(RenderTarget target, RenderStates states)
         {

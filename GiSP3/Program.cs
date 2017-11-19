@@ -55,7 +55,7 @@ namespace DiceWars
 
         public static int LoadIntSetting(string name)
         {
-            int x = Int32.Parse(LoadSetting(name));
+            int x = int.Parse(LoadSetting(name));
             return x;
         }
 
@@ -84,16 +84,14 @@ namespace DiceWars
 
         public static Font LoadFont(string name)
         {
-            Font temp;
             if (File.Exists(fontpath + name))
             {
-                temp = new Font(fontpath + name);
-                return temp;
+                return new Font(fontpath + name);
             }
             else
             {
-                Console.WriteLine("Nie ma takiego fontu! Zwracam domyślną wartość");
-                return new Font(fontpath + "/Font.otf");
+                Console.WriteLine("Font read error - no such file");
+                return new Font(fontpath + "Font.otf");
             }
         }
 
@@ -101,7 +99,7 @@ namespace DiceWars
         {
             settingspath = "resources/user/settings.csv";
             imagespath = "resources/images/";
-            fontpath = "resources/fonts";
+            fontpath = "resources/fonts/";
             loadedsettings = new Dictionary<string, string>();
             loadedtextures = new Dictionary<string, Texture>();
 

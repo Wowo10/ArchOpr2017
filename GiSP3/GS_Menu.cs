@@ -39,8 +39,7 @@ namespace DiceWars
 
             string txt = "DiceWars!";
             uint charSize = 40;
-            Font font = Program.LoadFont("");
-
+            Font font = Program.LoadFont("Font.otf");
 
             //class CuteText
             menuText = new Text(txt, font, charSize);
@@ -65,18 +64,18 @@ namespace DiceWars
 
         public override void Update()
         {
-            if (toLobby.isClicked)
+            if (toLobby.isActive)
             {
                 nextstate = States.GS_LOBBY;
                 stateaction = StateActions.PUSH;
             }
 
-            if (exitButton.isClicked)
+            if (exitButton.isActive)
             {
                 stateaction = StateActions.POP;
             }
             
-            if(toSettings.isClicked)
+            if(toSettings.isActive)
             {
                 nextstate = States.GS_SETTINGS;
                 stateaction = StateActions.PUSH;

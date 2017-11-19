@@ -87,10 +87,9 @@ namespace DiceWars
                 stateaction = StateActions.POP;
             }
 
-            if(toMenu.isClicked)
+            if(toMenu.isActive)
             {
-                nextstate = States.GS_MENU;
-                stateaction = StateActions.PUSH;
+                stateaction = StateActions.POP;
             }
         }
 
