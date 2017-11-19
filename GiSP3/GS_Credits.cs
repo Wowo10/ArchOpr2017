@@ -1,23 +1,22 @@
-﻿using SFML.Graphics;
-using SFML.System;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SFML.Graphics;
 
 namespace DiceWars
 {
-    class GS_Settings : GameState
+    class GS_Credits : GameState
     {
         Button toMenu;
 
-        public GS_Settings() : base()
+        public GS_Credits() : base()
         {
             toMenu = new Button(100, 100);
             toMenu.ButtonText = "toMenu";
             mouseInteractionList.Add(toMenu);
 
-            backgroundColor = new Color(30, 110, 60);
+            backgroundColor = new Color(130, 20, 80);
         }
 
         public override void Update()

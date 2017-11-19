@@ -74,19 +74,13 @@ namespace DiceWars
         {
             toMenu = new Button(100,100);
             toMenu.ButtonText = "toMenu";
-            mousInteractionList.Add(toMenu);
+            mouseInteractionList.Add(toMenu);
 
             backgroundColor = new Color(0, 110, 0);
-            mousInteractionList.Add(toMenu);
         }
 
         public override void Update()
         {
-            if (Keyboard.IsKeyPressed(Keyboard.Key.V))
-            {
-                stateaction = StateActions.POP;
-            }
-
             if(toMenu.isActive)
             {
                 stateaction = StateActions.POP;

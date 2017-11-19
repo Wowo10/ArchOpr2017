@@ -89,6 +89,10 @@ namespace DiceWars
                 {
                     helpstate = new GS_Lobby();
                 }
+                else if (statesqueue.Peek().nextstate == States.GS_CREDITS)
+                {
+                    helpstate = new GS_Credits();
+                }
                 else if (statesqueue.Peek().nextstate == States.GS_SETTINGS)
                 {
                     helpstate = new GS_Settings();

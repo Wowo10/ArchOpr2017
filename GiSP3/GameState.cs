@@ -15,7 +15,8 @@ namespace DiceWars
         GS_MENU,
         GS_GAMEPLAY,
         GS_LOBBY,
-        GS_SETTINGS
+        GS_SETTINGS,
+        GS_CREDITS
     }
 
     class GameState
@@ -25,37 +26,37 @@ namespace DiceWars
         public StateActions stateaction;
         public Color backgroundColor;
 
-        public List<IMouseInteraction> mousInteractionList;
+        public List<IMouseInteraction> mouseInteractionList;
 
         public GameState()
         {
             backgroundColor = new Color(0, 100, 30);
             nextstate = States.NONE;
             stateaction = StateActions.NONE;
-            mousInteractionList = new List<IMouseInteraction>();
+            mouseInteractionList = new List<IMouseInteraction>();
         }
 
         public virtual void onClick(MouseButtonEventArgs e)
         {
-            for (int i = 0; i < mousInteractionList.Count; i++)
+            for (int i = 0; i < mouseInteractionList.Count; i++)
             {
-                mousInteractionList[i].Clicked(e.X, e.Y);
+                mouseInteractionList[i].Clicked(e.X, e.Y);
             }
         }
 
         public virtual void onRelease(MouseButtonEventArgs e)
         {
-            for (int i = 0; i < mousInteractionList.Count; i++)
+            for (int i = 0; i < mouseInteractionList.Count; i++)
             {
-                mousInteractionList[i].Released(e.X, e.Y);
+                mouseInteractionList[i].Released(e.X, e.Y);
             }
         }
 
         public virtual void onMouseMove(MouseMoveEventArgs e)
         {
-            for (int i = 0; i < mousInteractionList.Count; i++)
+            for (int i = 0; i < mouseInteractionList.Count; i++)
             {
-                mousInteractionList[i].MouseMove(e.X, e.Y);
+                mouseInteractionList[i].MouseMove(e.X, e.Y);
             }
         }
 
@@ -67,7 +68,7 @@ namespace DiceWars
 
         public virtual void DrawMouseInteractive(RenderWindow window)
         {
-            mousInteractionList.ForEach(x => window.Draw(x));
+            mouseInteractionList.ForEach(x => window.Draw(x));
         }
     }
 }

@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Button.cs" />
+    <Compile Include="CuteText.cs" />
     <Compile Include="GameState.cs" />
+    <Compile Include="GS_Credits.cs" />
     <Compile Include="GS_Gameplay.cs" />
     <Compile Include="GS_Lobby.cs" />
     <Compile Include="GS_Menu.cs" />
