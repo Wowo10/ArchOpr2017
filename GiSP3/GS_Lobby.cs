@@ -73,6 +73,8 @@ namespace DiceWars
         //TODO: check if it is a valid ip (regexp)
         static bool isValidIPAddress(string ip)
         {
+            if (ip == null)
+                return false;
             Program.ip = null;
             string[] tmp = ip.Trim().Split('.');
             if (tmp.Length == 4)

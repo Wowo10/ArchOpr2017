@@ -10,9 +10,16 @@ namespace DiceWars
     class GS_Gameplay : GameState
     {
         Button btnBack;
+        Client client;
+        string s;
 
         public GS_Gameplay() : base()
         {
+            s = "wtf";
+            Console.WriteLine(Program.ip);
+            client = new Client();
+            client.Connect(Program.ip, "xD");
+
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -33,7 +40,7 @@ namespace DiceWars
 
             if (btnBack.isActive)
             {
-                stateaction = StateActions.POP;
+                client.Connect(Program.ip, (s+="a"));
             }
         }
 

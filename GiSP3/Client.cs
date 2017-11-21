@@ -11,10 +11,10 @@ namespace DiceWars
     {
         public Client()
         {
-            Connect("127.0.0.1", "xD");
+
         }
 
-        static void Connect(String server, String message)
+        public void Connect(String server, String message)
         {
             try
             {
@@ -41,8 +41,6 @@ namespace DiceWars
             {
                 Console.WriteLine("SocketException: {0}", e);
             }
-
-
         }
     }
 }
