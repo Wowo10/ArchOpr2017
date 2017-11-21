@@ -69,10 +69,43 @@ namespace DiceWars
 
     class GS_Lobby : GameState
     {
+        static bool isCorrect;
         //TODO: check if it is a valid ip (regexp)
         static bool isValidIPAddress(string ip)
         {
-            return true;
+            Program.ip = null;
+            string[] tmp = ip.Trim().Split('.');
+            if (tmp.Length == 4)
+            {
+                try
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        int octet = Convert.ToInt16(tmp[i]);
+                        if (octet > 255 || octet < 0)
+                        {
+                            isCorrect = false;
+                            return false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    isCorrect = false;
+                    return false;
+                }
+
+                Program.ip = ip;
+                isCorrect = true;
+                return true;
+
+            }
+            else
+            {
+                isCorrect = false;
+                return false;
+            }
+                 
         }
 
         Button btnToMenu, btnPasteIP, btnConnectToGame;
@@ -123,9 +156,13 @@ namespace DiceWars
                 {
                     text.setString("IP: " + tmpIP);
                 }
+                else
+                {
+                    text.setString("IP: " + "incorrect IP");
+                }
             }
 
-            if (btnConnectToGame.isActive)
+            if (btnConnectToGame.isActive && isCorrect)
             {
                 Console.WriteLine("Connecting...");
                 stateaction = StateActions.PUSH;
