@@ -8,15 +8,9 @@ namespace Server
 {
     class Program
     {
-        static string getIP()
-        {
-            string externalip = new WebClient().DownloadString("http://icanhazip.com");
-            return externalip;
-        }
         static void Main(string[] args)
         {
             TcpListener server = null;
-            Console.WriteLine(getIP());
             try
             {
                 Int32 port = 13000;
