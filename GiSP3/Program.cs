@@ -15,6 +15,7 @@ namespace DiceWars
         static string settingspath;
         static string imagespath;
         static string fontpath;
+        public static string ip;
 
         public static Dictionary<string, string> loadedsettings;
         public static string LoadSetting(string name)
