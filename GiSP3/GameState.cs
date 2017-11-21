@@ -64,7 +64,11 @@ namespace DiceWars
         public virtual void Update() { }
 
         //for showing the output
-        public virtual void Render(RenderWindow window) { }
+        public virtual void Render(RenderWindow window)
+        {
+            window.Clear(backgroundColor);
+            DrawMouseInteractive(window);
+        }
 
         public virtual void DrawMouseInteractive(RenderWindow window)
         {

@@ -58,21 +58,6 @@ namespace DiceWars
                 text.Origin = new Vector2f(text.GetGlobalBounds().Width / 2, text.CharacterSize / 2);
             }
         }
-
-        public bool isClicked
-        {
-            get
-            {
-                if (clicked)
-                {
-                    clicked = false;
-                    return true;
-                }
-                else
-                    return false;
-            }
-        }
-
         //fuckfix
         public bool isActive
         {

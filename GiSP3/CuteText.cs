@@ -20,9 +20,9 @@ namespace DiceWars
             charSize = 40;
             this.text = text;
             font = Program.LoadFont("Font.otf");
-            mainText = getText(text, charSize, font, Color.White);
-            upperText = getText(text, charSize, font, Color.Black, ux, uy);
-            lowerText = getText(text, charSize, font, Color.Black, lx, ly);
+            mainText = setText(text, charSize, font, Color.White);
+            upperText = setText(text, charSize, font, Color.Black, ux, uy);
+            lowerText = setText(text, charSize, font, Color.Black, lx, ly);
         }
 
         public CuteText(string text, Vector2f position) : this(text)
@@ -30,7 +30,7 @@ namespace DiceWars
             Position = position;
         }
 
-        private Text getText(string txt, uint charSize, Font font, Color color)
+        private Text setText(string txt, uint charSize, Font font, Color color)
         {
             Text tmp;
             tmp = new Text(txt, font);
@@ -40,11 +40,18 @@ namespace DiceWars
             return tmp;
         }
 
-        private Text getText(string txt, uint charSize, Font font, Color color, int x, int y)
+        private Text setText(string txt, uint charSize, Font font, Color color, int x, int y)
         {
-            Text tmp = getText(txt, charSize, font, color);
+            Text tmp = setText(txt, charSize, font, color);
             tmp.Position = new Vector2f(tmp.Position.X + x, tmp.Position.Y + y);
             return tmp;
+        }
+
+        public void setString(string txt)
+        {
+            mainText.DisplayedString = txt;
+            upperText.DisplayedString = txt;
+            lowerText.DisplayedString = txt;
         }
 
         public void Draw(RenderTarget target, RenderStates states)

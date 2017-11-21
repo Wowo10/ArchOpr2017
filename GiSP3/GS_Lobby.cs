@@ -63,34 +63,80 @@ namespace DiceWars
                 }
             }
             CloseClipboard();
-            return data;
+            return data.Trim();
         }
     }
+
     class GS_Lobby : GameState
     {
-        Button toMenu;
+        //TODO: check if it is a valid ip (regexp)
+        static bool isValidIPAddress(string ip)
+        {
+            return true;
+        }
 
+        Button btnToMenu, btnPasteIP, btnConnectToGame;
+        CuteText text;
+        
         public GS_Lobby() : base()
         {
-            toMenu = new Button(100,100);
-            toMenu.ButtonText = "toMenu";
-            mouseInteractionList.Add(toMenu);
+            int resx = Program.LoadIntSetting("resx");
+            int resy = Program.LoadIntSetting("resy");
+            int buttonWidth = Program.LoadIntSetting("buttonWidth");
+            int buttonHeight = Program.LoadIntSetting("buttonHeight");
+
+            text = new CuteText("", new Vector2f(50,50));
+            text.setString("IP: ");
+
+            btnToMenu = new Button(buttonWidth, buttonHeight);
+            btnToMenu.setPosition(new Vector2f(40, resy - buttonHeight - 40));
+            btnToMenu.ButtonText = "Back";
+
+            btnPasteIP = new Button(buttonWidth * 1.6f, buttonHeight);
+            btnPasteIP.setPosition(new Vector2f(resx - buttonWidth * 1.6f - 50, 120));
+            btnPasteIP.ButtonText = "Paste IP address";
+
+            btnConnectToGame = new Button(buttonWidth, buttonHeight);
+            btnConnectToGame.setPosition(new Vector2f(resx - buttonWidth - 40, resy - buttonHeight - 40));
+            btnConnectToGame.ButtonText = "Connect";
+
+            mouseInteractionList.Add(btnToMenu);
+            mouseInteractionList.Add(btnPasteIP);
+            mouseInteractionList.Add(btnConnectToGame);
 
             backgroundColor = new Color(0, 110, 0);
+
+            //TODO display ip addresses uploaded to a website (grzesieks.16mb.com)
         }
 
         public override void Update()
         {
-            if(toMenu.isActive)
+            if (btnToMenu.isActive)
             {
                 stateaction = StateActions.POP;
+            }
+
+            if (btnPasteIP.isActive)
+            {
+                string tmpIP = fastClipboard.GetText();
+                if (isValidIPAddress(tmpIP))
+                {
+                    text.setString("IP: " + tmpIP);
+                }
+            }
+
+            if (btnConnectToGame.isActive)
+            {
+                Console.WriteLine("Connecting...");
+                stateaction = StateActions.PUSH;
+                nextstate = States.GS_GAMEPLAY;
             }
         }
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(backgroundColor);
-            DrawMouseInteractive(window);
+            base.Render(window);
+            window.Draw(text);
         }
     }
 }

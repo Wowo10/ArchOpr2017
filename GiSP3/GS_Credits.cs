@@ -9,15 +9,21 @@ namespace DiceWars
 {
     class GS_Credits : GameState
     {
-        Button toMenu;
+        Button btnBack;
         List<CuteText> authors;
         CuteText credits;
 
         public GS_Credits() : base()
         {
-            toMenu = new Button(100, 100);
-            toMenu.ButtonText = "toMenu";
-            mouseInteractionList.Add(toMenu);
+            int resx = Program.LoadIntSetting("resx");
+            int resy = Program.LoadIntSetting("resy");
+            int buttonWidth = Program.LoadIntSetting("buttonWidth");
+            int buttonHeight = Program.LoadIntSetting("buttonHeight");
+
+            btnBack = new Button(buttonWidth, buttonHeight);
+            btnBack.setPosition(new Vector2f(40, resy - buttonHeight - 40));
+            btnBack.ButtonText = "Back";
+            mouseInteractionList.Add(btnBack);
 
             authors = new List<CuteText>();
             authors.Add(new CuteText("Wojciech Płatek"));
@@ -38,7 +44,7 @@ namespace DiceWars
 
         public override void Update()
         {
-            if (toMenu.isActive)
+            if (btnBack.isActive)
             {
                 stateaction = StateActions.POP;
             }
@@ -46,10 +52,9 @@ namespace DiceWars
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(backgroundColor);
+            base.Render(window);
             window.Draw(credits);
             authors.ForEach(x => window.Draw(x));
-            DrawMouseInteractive(window);
         }
     }
 }

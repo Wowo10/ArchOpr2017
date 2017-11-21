@@ -16,7 +16,7 @@ namespace DiceWars
         static string imagespath;
         static string fontpath;
 
-        static Dictionary<string, string> loadedsettings;
+        public static Dictionary<string, string> loadedsettings;
         public static string LoadSetting(string name)
         {
             //checking if setting was loaded
@@ -60,7 +60,7 @@ namespace DiceWars
         }
 
         //quite similar to loading settings
-        static Dictionary<string, Texture> loadedtextures;
+        public static Dictionary<string, Texture> loadedtextures;
         public static Texture LoadTexture(string name)
         {
             if (loadedtextures.ContainsKey(name))

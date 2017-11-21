@@ -9,20 +9,31 @@ namespace DiceWars
 {
     class GS_Settings : GameState
     {
-        Button toMenu;
+        Button btnToMenu;
+        CuteText textSettings;
 
         public GS_Settings() : base()
         {
-            toMenu = new Button(100, 100);
-            toMenu.ButtonText = "toMenu";
-            mouseInteractionList.Add(toMenu);
+            int resx = Program.LoadIntSetting("resx");
+            int resy = Program.LoadIntSetting("resy");
+            int buttonWidth = Program.LoadIntSetting("buttonWidth");
+            int buttonHeight = Program.LoadIntSetting("buttonHeight");
+
+            textSettings = new CuteText("", new Vector2f(50, 50));
+            textSettings.setString("IP: ");
+
+            btnToMenu = new Button(buttonWidth, buttonHeight);
+            btnToMenu.setPosition(new Vector2f(40, resy - buttonHeight - 40));
+            btnToMenu.ButtonText = "Back";
 
             backgroundColor = new Color(30, 110, 60);
+
+            mouseInteractionList.Add(btnToMenu);
         }
 
         public override void Update()
         {
-            if (toMenu.isActive)
+            if (btnToMenu.isActive)
             {
                 stateaction = StateActions.POP;
             }
@@ -30,8 +41,7 @@ namespace DiceWars
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(backgroundColor);
-            DrawMouseInteractive(window);
+            base.Render(window);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace DiceWars
 {
     class GS_Menu : GameState
     {
-        Button toLobby, toSettings, toCredits;
+        Button toLobby, toSettings, toCredits, exit;
         CuteText dice;
 
         public GS_Menu() : base()
@@ -36,9 +36,14 @@ namespace DiceWars
             toCredits.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + 3 * (buttonH + buttonSpace)));
             toCredits.ButtonText = "toCredits";
 
+            exit = new Button(buttonW, buttonH);
+            exit.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + 4 * (buttonH + buttonSpace)));
+            exit.ButtonText = "Exit!";
+
             mouseInteractionList.Add(toLobby);
             mouseInteractionList.Add(toSettings);
             mouseInteractionList.Add(toCredits);
+            mouseInteractionList.Add(exit);
 
             dice = new CuteText("DiceWars!");
             dice.Position = new Vector2f(resx / 2, resy / 3);
@@ -63,14 +68,17 @@ namespace DiceWars
                 nextstate = States.GS_CREDITS;
                 stateaction = StateActions.PUSH;
             }
+
+            if (exit.isActive)
+            {
+                stateaction = StateActions.POP;
+            }
         }
 
         public override void Render(RenderWindow window)
         {
-            window.Clear(backgroundColor);
-
+            base.Render(window);
             window.Draw(dice);
-            DrawMouseInteractive(window);
         }
     }
 }
