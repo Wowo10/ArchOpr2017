@@ -120,6 +120,8 @@ namespace DiceWars
 
         private void InitializeGui()
         {
+            backgroundColor = new Color(0, 110, 0);
+
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -143,8 +145,6 @@ namespace DiceWars
             mouseInteractionList.Add(btnToMenu);
             mouseInteractionList.Add(btnPasteIP);
             mouseInteractionList.Add(btnConnectToGame);
-
-            backgroundColor = new Color(0, 110, 0);
         }
 
         public override void Update()

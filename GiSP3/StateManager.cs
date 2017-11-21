@@ -122,6 +122,7 @@ namespace DiceWars
             {
                 if(statesqueue.Peek().stateaction == StateActions.PUSH)
                 {
+                    statesqueue.Peek().ReleaseGui();
                     PushState();
                 }
                 else if(statesqueue.Peek().stateaction == StateActions.POP)

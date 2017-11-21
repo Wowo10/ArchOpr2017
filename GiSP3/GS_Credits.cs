@@ -20,6 +20,8 @@ namespace DiceWars
 
         private void InitializeGui()
         {
+            backgroundColor = new Color(130, 20, 80);
+
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -39,8 +41,6 @@ namespace DiceWars
             authors.ForEach(a => a.Position = new Vector2f(resx / 2, resy / 3 + (space += 60)));
 
             credits = new CuteText("CREDITS:", new Vector2f(resx / 2, resy / 3 - 20));
-
-            backgroundColor = new Color(130, 20, 80);
         }
 
         public override void Update()

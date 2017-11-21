@@ -20,6 +20,8 @@ namespace DiceWars
 
         private void InitializeGui()
         {
+            backgroundColor = new Color(110, 0, 0);
+
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -50,7 +52,6 @@ namespace DiceWars
 
             dice = new CuteText("DiceWars!");
             dice.Position = new Vector2f(resx / 2, resy / 3);
-            backgroundColor = new Color(110, 0, 0);
         }
 
         public override void Update()
@@ -75,7 +76,10 @@ namespace DiceWars
 
             if (exit.isActive)
             {
-                stateaction = StateActions.POP;
+                //stateaction = StateActions.POP;
+
+                nextstate = States.GS_GAMEPLAY;
+                stateaction = StateActions.PUSH;
             }
         }
 
