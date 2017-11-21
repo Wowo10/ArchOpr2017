@@ -107,20 +107,25 @@ namespace DiceWars
                 isCorrect = false;
                 return false;
             }
-                 
+
         }
 
         Button btnToMenu, btnPasteIP, btnConnectToGame;
         CuteText text;
-        
+
         public GS_Lobby() : base()
+        {
+            InitializeGui();
+        }
+
+        private void InitializeGui()
         {
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
             int buttonHeight = Program.LoadIntSetting("buttonHeight");
 
-            text = new CuteText("", new Vector2f(50,50));
+            text = new CuteText("", new Vector2f(50, 50));
             text.setString("IP: ");
 
             btnToMenu = new Button(buttonWidth, buttonHeight);
@@ -140,8 +145,6 @@ namespace DiceWars
             mouseInteractionList.Add(btnConnectToGame);
 
             backgroundColor = new Color(0, 110, 0);
-
-            //TODO display ip addresses uploaded to a website (grzesieks.16mb.com)
         }
 
         public override void Update()

@@ -15,11 +15,16 @@ namespace DiceWars
 
         public GS_Gameplay() : base()
         {
+            InitializeGui();
+
             s = "wtf";
             Console.WriteLine(Program.ip);
             client = new Client();
             client.Connect(Program.ip, "xD");
+        }
 
+        private void InitializeGui()
+        {
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -40,7 +45,7 @@ namespace DiceWars
 
             if (btnBack.isActive)
             {
-                client.Connect(Program.ip, (s+="a"));
+                client.Connect(Program.ip, (s += "a"));
             }
         }
 

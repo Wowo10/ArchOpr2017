@@ -15,29 +15,27 @@ namespace DiceWars
 
         public GS_Menu() : base()
         {
-            backgroundColor = new Color(110, 0, 0);
+            InitializeGui();
+        }
 
+        private void InitializeGui()
+        {
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
-
-            int buttonH = 40;
-            int buttonW = 130;
+            int buttonWidth = Program.LoadIntSetting("buttonWidth");
+            int buttonHeight = Program.LoadIntSetting("buttonHeight");
             int buttonSpace = 20;
 
-            toLobby = new Button(buttonW, buttonH);
-            toLobby.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + buttonH + buttonSpace));
+            toLobby = new Button(buttonWidth, buttonHeight);
             toLobby.ButtonText = "toLobby";
 
-            toSettings = new Button(buttonW, buttonH);
-            toSettings.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + 2 * (buttonH + buttonSpace)));
+            toSettings = new Button(buttonWidth, buttonHeight);
             toSettings.ButtonText = "toSettings";
 
-            toCredits = new Button(buttonW, buttonH);
-            toCredits.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + 3 * (buttonH + buttonSpace)));
+            toCredits = new Button(buttonWidth, buttonHeight);
             toCredits.ButtonText = "toCredits";
 
-            exit = new Button(buttonW, buttonH);
-            exit.setPosition(new Vector2f(resx / 2 - buttonW / 2, resy / 3 + 4 * (buttonH + buttonSpace)));
+            exit = new Button(buttonWidth, buttonHeight);
             exit.ButtonText = "Exit!";
 
             mouseInteractionList.Add(toLobby);
@@ -45,8 +43,14 @@ namespace DiceWars
             mouseInteractionList.Add(toCredits);
             mouseInteractionList.Add(exit);
 
+            for (int i = 0; i < mouseInteractionList.Count; i++)
+            {
+                ((Button)mouseInteractionList[i]).setPosition(new Vector2f(resx / 2 - buttonWidth / 2, resy / 3 + (i + 1) * (buttonHeight + buttonSpace)));
+            }
+
             dice = new CuteText("DiceWars!");
             dice.Position = new Vector2f(resx / 2, resy / 3);
+            backgroundColor = new Color(110, 0, 0);
         }
 
         public override void Update()

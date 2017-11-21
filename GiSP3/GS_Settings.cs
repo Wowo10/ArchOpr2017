@@ -14,6 +14,11 @@ namespace DiceWars
 
         public GS_Settings() : base()
         {
+            InitializeGui();
+        }
+
+        private void InitializeGui()
+        {
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
