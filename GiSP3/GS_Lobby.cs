@@ -110,8 +110,8 @@ namespace DiceWars
 
         }
 
-        Button btnToMenu, btnPasteIP, btnConnectToGame;
-        CuteText text;
+        private Button btnToMenu, btnPasteIP, btnConnectToGame;
+        private CuteText text;
 
         public GS_Lobby() : base()
         {

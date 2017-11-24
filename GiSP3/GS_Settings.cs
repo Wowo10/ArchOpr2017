@@ -9,8 +9,8 @@ namespace DiceWars
 {
     class GS_Settings : GameState
     {
-        Button btnToMenu;
-        CuteText textSettings;
+        private Button btnToMenu;
+        private CuteText textSettings;
 
         public GS_Settings() : base()
         {

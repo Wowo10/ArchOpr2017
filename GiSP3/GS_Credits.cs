@@ -9,9 +9,9 @@ namespace DiceWars
 {
     class GS_Credits : GameState
     {
-        Button btnBack;
-        List<CuteText> authors;
-        CuteText credits;
+        private Button btnBack;
+        private List<CuteText> authors;
+        private CuteText credits;
 
         public GS_Credits() : base()
         {

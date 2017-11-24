@@ -11,17 +11,19 @@ namespace Server
         static void Main(string[] args)
         {
             TcpListener server = null;
+            Console.WriteLine("Wpisz adres serwera (np. 127.0.0.1, 127.0.0.2 itp)");
+            string ip = Console.ReadLine();
             try
             {
                 Int32 port = 13000;
-                IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+                IPAddress localAddr = IPAddress.Parse(ip);
                 server = new TcpListener(localAddr, port);
                 server.Start();
                 Byte[] bytes = new Byte[256];
                 String data = null;
                 while (true)
                 {
-                    Console.Write("Waiting for a connection... ");
+                    Console.Write("Server started! Waiting for packets...");
                     TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Connected!");
                     data = null;

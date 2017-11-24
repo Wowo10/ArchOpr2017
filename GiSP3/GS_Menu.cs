@@ -10,8 +10,8 @@ namespace DiceWars
 {
     class GS_Menu : GameState
     {
-        Button toLobby, toSettings, toCredits, exit;
-        CuteText dice;
+        private Button toLobby, toSettings, toCredits, exit;
+        private CuteText dice;
 
         public GS_Menu() : base()
         {
