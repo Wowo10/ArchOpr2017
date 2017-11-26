@@ -3,18 +3,55 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Server
 {
     class Program
     {
+        static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
+        static List<string> keys = new List<string>();
+
+        static void Mange()
+        {
+            while (true)
+            {
+                int index = 0;
+                while (index<keys.Count)
+                {
+                    string tmpKey = keys[index];
+
+                    if (tmpKey!=null && TimeOut.ContainsKey(tmpKey))
+                    {
+                        TimeSpan time = DateTime.Now - TimeOut[tmpKey];
+                        if (time.TotalSeconds > 5)
+                        {
+                            Console.WriteLine("Has left");
+                            TimeOut.Remove(tmpKey);
+                            keys.Remove(tmpKey);
+                        }
+                    }
+                    index += 1;
+                }                                             
+            
+                
+            }
+
+        }
+
+
         static void Main(string[] args)
         {
+            Thread thread = new Thread(Mange);
+            thread.Start();
+
             TcpListener server = null;
             try
             {
                 Int32 port = 13000;
-                IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+                IPAddress localAddr = IPAddress.Parse("192.168.1.2");
                 server = new TcpListener(localAddr, port);
                 server.Start();
                 Byte[] bytes = new Byte[256];
@@ -24,6 +61,18 @@ namespace Server
                     Console.Write("Waiting for a connection... ");
                     TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Connected!");
+                    string key = client.Client.RemoteEndPoint.ToString().Split(':')[0];
+                    if (TimeOut.ContainsKey(key))
+                    {
+                        TimeOut[key] = DateTime.Now;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Has joined");
+                        keys.Add(key);
+                        TimeOut.Add(key, DateTime.Now);
+                    }
+                    
                     data = null;
                     NetworkStream stream = client.GetStream();
 
@@ -46,6 +95,8 @@ namespace Server
             catch (SocketException e)
             {
                 Console.WriteLine("SocketException: {0}", e);
+                server.Stop();
+                server.Start();
             }
             finally
             {

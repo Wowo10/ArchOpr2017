@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace DiceWars
 {
@@ -13,12 +14,25 @@ namespace DiceWars
         Client client;
         string s;
 
+        public void SendAndReceive(object data)
+        {
+            while (!Program.exit)
+            {
+                Thread.Sleep(2000);
+                //s = "wtf";
+                Console.WriteLine(Program.ip);
+                client = new Client();
+                client.Connect(Program.ip, s);
+            }                     
+        }
+
         public GS_Gameplay() : base()
         {
+
             s = "wtf";
-            Console.WriteLine(Program.ip);
-            client = new Client();
-            client.Connect(Program.ip, "xD");
+            Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
+            th.Start(Program.ip);            
+
 
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
@@ -32,6 +46,7 @@ namespace DiceWars
             backgroundColor = new Color(40, 50, 90);
 
             mouseInteractionList.Add(btnBack);
+            
         }
 
         public override void Update()
