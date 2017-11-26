@@ -14,6 +14,7 @@ namespace DiceWars
         private string s;
         private bool turn;
         private Map map;
+        private string msg;
 
         CuteText yourTurnCuteText, notCuteText;
 
@@ -24,6 +25,8 @@ namespace DiceWars
 
             map = new Map();
             mouseInteractionList.Add(map);
+
+            msg = "" + Program.id;
         }
 
         private void InitializeGui()

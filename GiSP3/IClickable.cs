@@ -7,7 +7,7 @@ namespace DiceWars
 {
     interface IClickable
     {
-        void Clicked(float x, float y);
+        bool Clicked(float x, float y);
         void Released(float x, float y);
     }
 }

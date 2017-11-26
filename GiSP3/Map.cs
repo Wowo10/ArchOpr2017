@@ -14,26 +14,43 @@ namespace DiceWars
         private int diceCount;
         private Text text;
 
-        public Hex(float size)
+        private Color noOccupationColor, hoverColor, neighbourColor, clickedColor;
+
+        public Hex(float size, int a)
         {
+            InitColors();
             occupation = Color.Black;
-            Vector2f position = new Vector2f(0, 0);
+
+            diceCount = a;
+
+
             border = new VertexArray();
             border.PrimitiveType = PrimitiveType.LinesStrip;
 
+
             PrimitiveType = PrimitiveType.TrianglesFan;
+            Vector2f position = new Vector2f(0, 0);
             Append(new Vertex(position, occupation));
             for (float i = 0; i < 7; i++)
             {
                 float x = (float)(Math.Sin(i / 6 * 2 * Math.PI) * size);
                 float y = (float)(Math.Cos(i / 6 * 2 * Math.PI) * size);
                 Append(new Vertex(new Vector2f(position.X + x, position.Y + y), new Color(100, 100, 100)));
-                border.Append(new Vertex(new Vector2f(position.X + x, position.Y + y), Color.Black));
+                border.Append(new Vertex(new Vector2f(position.X + x, position.Y + y), occupation));
             }
 
             Font f = Program.LoadFont("Font.otf");
-            text = new Text(new Random().Next(0, 10).ToString(), f, 20);
+            Random w = new Random(DateTime.Now.Millisecond);
+            text = new Text(a.ToString(), f, 20);
             //TODO: liczba kostek pobierana z serwera.
+        }
+
+        private void InitColors()
+        {
+            noOccupationColor = Color.Black;
+            hoverColor = Color.Yellow;
+            neighbourColor = Color.Magenta;
+            clickedColor = Color.Blue;
         }
 
         static float DotProduct(Vector2f a, Vector2f b)
@@ -57,6 +74,22 @@ namespace DiceWars
             }
             return true;
         }
+
+        private Color borderColor;
+
+        public Color BorderColor
+        {
+            get { return borderColor; }
+            set
+            {
+                borderColor = value;
+                for (uint i = 0; i < border.VertexCount; i++)
+                {
+                    border[i] = new Vertex(border[i].Position, value);
+                }
+            }
+        }
+
 
         public Color Occupation
         {
@@ -99,18 +132,20 @@ namespace DiceWars
         }
 
 
-        public void Clicked(float x, float y)
+        public bool Clicked(float x, float y)
         {
             if (isInside(new Vector2f(x, y)))
             {
-                this[0] = new Vertex(this[0].Position, Color.Blue);
+                this[0] = new Vertex(this[0].Position, clickedColor);
+                return true;
             }
+            return false;
         }
 
         public void MouseMove(float x, float y)
         {
             if (isInside(new Vector2f(x, y)))
-                this[0] = new Vertex(this[0].Position, Color.Red);
+                this[0] = new Vertex(this[0].Position, hoverColor);
             else
                 this[0] = new Vertex(this[0].Position, occupation);
         }
@@ -118,7 +153,7 @@ namespace DiceWars
         public void Released(float x, float y)
         {
             if (isInside(new Vector2f(x, y)))
-                this[0] = new Vertex(this[0].Position, Color.Red);
+                this[0] = new Vertex(this[0].Position, occupation);
         }
 
         public new void Draw(RenderTarget target, RenderStates states)
@@ -132,29 +167,80 @@ namespace DiceWars
     class Map : Drawable, IMouseInteraction
     {
         private List<Hex> hex;
-        private List<int> mine, opponents;
+        private List<int> mine, opponents, neighbours;
+        private Color mineColor, opponentColor, neighbourColor, defaultColor;
 
         int mapWidth = 6;
         int mapHeight = 6;
         int tiles;
 
+        private int focus;
+
         public Map()
         {
+            focus = -1;
+            neighbours = new List<int>();
             float hexSize = 40;
             float d = (float)(hexSize * Math.Sqrt(3) / 2); //odległość od centrum do środka ściany
             tiles = mapWidth * mapHeight;
 
             hex = new List<Hex>();
+            Random r = new Random();
             for (float i = 0; i < mapHeight; i++)
             {
                 for (int j = 0; j < mapWidth; j++)
                 {
-                    hex.Add(new Hex(hexSize));
+                    hex.Add(new Hex(hexSize - 0.5f, r.Next(0, 10)));
                     hex[hex.Count - 1].Position = new Vector2f((j + 1) * 2 * d + (i % 2) * d, (i + 1) * 2 * hexSize - hexSize * (i / 2));
                 }
             }
 
             InitializePlayers();
+            InitColors();
+        }
+
+        private List<int> GetNeighbours(int a)
+        {
+            List<int> tmp = new List<int>();
+
+            int odd = a / mapWidth % 2;
+
+            if (a % mapWidth != 0)                                           //lewy
+                tmp.Add(a - 1);
+            if (a % mapWidth != mapWidth - 1)                                //prawy
+                tmp.Add(a + 1);
+            if (odd == 1)
+            {
+                if (a / mapWidth < mapWidth - 1)
+                    tmp.Add(a + mapWidth - 1 + odd);
+                if (a / mapWidth > 0)
+                    tmp.Add(a - mapWidth - 1 + odd);
+                if (a % mapWidth != mapWidth - 1 && a / mapWidth < mapWidth - 1) //prawy dolny
+                {
+                    tmp.Add(a + mapWidth + odd);
+                }
+                if (a % mapWidth != mapWidth - 1 && a / mapWidth > 0)            //prawy górny
+                {
+                    tmp.Add(a - mapWidth + odd);
+                }
+            }
+            else
+            {
+                if (a / mapWidth < mapWidth - 1)
+                    tmp.Add(a + mapWidth + odd);
+                if (a / mapWidth > 0)
+                    tmp.Add(a - mapWidth + odd);
+                if (a % mapWidth != 0 && a / mapWidth < mapWidth - 1)            //lewy dolny
+                {
+                    tmp.Add(a + mapWidth - 1 + odd);
+                }
+                if (a % mapWidth != 0 && a / mapWidth > 0)                       //lewy górny
+                {
+                    tmp.Add(a - mapWidth - 1 + odd);
+                }
+            }
+
+            return tmp;
         }
 
         //TODO: get value from server
@@ -183,12 +269,77 @@ namespace DiceWars
             }
 
             mine.ForEach(z => hex[z].Occupation = Color.Green);
-            opponents.ForEach(z => hex[z].Occupation = Color.Yellow);
+            opponents.ForEach(z => hex[z].Occupation = Color.Red);
         }
 
-        public void Clicked(float x, float y)
+        private void InitColors()
         {
-            mine.ForEach(w => hex[w].Clicked(x, y));
+            mineColor = Color.Green;
+            opponentColor = Color.Red;
+            neighbourColor = Color.Magenta;
+            defaultColor = Color.Black;
+        }
+
+        public bool Clicked(float x, float y)
+        {
+            if (focus < 0)
+            {
+                for (int i = 0; i < mine.Count; i++)
+                {
+                    if (hex[mine[i]].Clicked(x, y))
+                    {
+                        focus = mine[i];
+                        hex[focus].BorderColor = Color.Blue;
+                        neighbours = GetNeighbours(mine[i]);
+                        neighbours.ForEach(q => hex[q].BorderColor = Color.White);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < neighbours.Count; i++)
+                {
+                    if (hex[neighbours[i]].Clicked(x, y))
+                    {
+                        //attack from focused to clicked
+                        Console.WriteLine(String.Format("Move #{0}({1}) -> #{2}({3})",
+                            focus, hex[focus].DiceCount, neighbours[i], hex[neighbours[i]].DiceCount));
+
+                        if (mine.Contains(neighbours[i]))
+                        {
+                            if (hex[focus].DiceCount >= 2)
+                            {
+                                hex[neighbours[i]].DiceCount += hex[focus].DiceCount - 2;
+                                hex[focus].DiceCount = 1;
+                            }
+                        }
+
+                        else if (hex[focus].DiceCount > hex[neighbours[i]].DiceCount)
+                        {
+                            if (opponents.Contains(neighbours[i]))
+                                opponents.Remove(neighbours[i]);
+                            if(!mine.Contains(neighbours[i]))
+                            {
+                                mine.Add(neighbours[i]);
+                                hex[neighbours[i]].DiceCount = hex[focus].DiceCount - hex[neighbours[i]].DiceCount - 2;
+                                hex[focus].DiceCount = 1;
+                            }
+                        }
+                    }
+                }
+                hex[focus].BorderColor = Color.Black;
+                neighbours.ForEach(q => hex[q].BorderColor = Color.Black);
+
+                for (int i = 0; i < neighbours.Count; i++)
+                {
+                    hex[neighbours[i]].Released(x, y);
+                }
+
+                neighbours.Clear();
+                focus = -1;
+                RefreshMap();
+            }
+            return true;
         }
 
         public void Draw(RenderTarget target, RenderStates states)
@@ -198,12 +349,27 @@ namespace DiceWars
 
         public void MouseMove(float x, float y)
         {
-            mine.ForEach(w => hex[w].MouseMove(x, y));
+            if (focus < 0)
+                mine.ForEach(w => hex[w].MouseMove(x, y));
+            else
+            {
+                neighbours.ForEach(w => hex[w].MouseMove(x, y));
+                hex[focus].MouseMove(x, y);
+            }
         }
 
         public void Released(float x, float y)
         {
-            mine.ForEach(w => hex[w].Released(x, y));
+            for (int i = 0; i < mine.Count; i++)
+            {
+                hex[mine[i]].Released(x, y);
+            }
+        }
+
+        private void RefreshMap()
+        {
+            mine.ForEach(z => hex[z].Occupation = Color.Green);
+            opponents.ForEach(z => hex[z].Occupation = Color.Red);
         }
     }
 }

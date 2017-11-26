@@ -94,13 +94,14 @@ namespace DiceWars
             }
         }
 
-        public void Clicked(float x, float y)
+        public bool Clicked(float x, float y)
         {
             if (GetGlobalBounds().Contains(x, y) && clickable)
             {
                 FillColor = Color.Green;
                 clicked = true;
             }
+            return true;
         }
 
         public void Released(float x, float y)
