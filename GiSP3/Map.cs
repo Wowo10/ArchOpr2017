@@ -164,25 +164,69 @@ namespace DiceWars
         }
     }
 
+    class Set : List<int>
+    {
+        public Set() : base()
+        {
+
+        }
+
+        public Set(int[] tab) : base()
+        {
+            for (int i = 0; i < tab.Length; i++)
+            {
+                Add(tab[i]);
+            }
+        }
+
+        public static Set operator &(Set l, Set r) // union of sets ∩
+        {
+            for (int i = 0; i < l.Count; i++)
+            {
+                if (!r.Contains(l[i]))
+                    l.Remove(l[i]);
+            }
+            return l;
+        }
+
+        public static Set operator |(Set l, Set r) //sum of sets ∪
+        {
+            for (int i = 0; i < r.Count; i++)
+            {
+                if (!l.Contains(r[i]))
+                    l.Add(r[i]);
+            }
+            return l;
+        }
+
+        public override string ToString()
+        {
+            string w = String.Join(", ", this);
+            return w;
+        }
+    }
+
     class Map : Drawable, IMouseInteraction
     {
         private List<Hex> hex;
-        private List<int> mine, opponents, neighbours;
+        private Set mine, opponents, neighbours;
         private Color mineColor, opponentColor, neighbourColor, defaultColor;
 
         int mapWidth = 6;
         int mapHeight = 6;
         int tiles;
 
-        private int focus;
+        private int focusedHex;
 
         public Map()
         {
-            focus = -1;
-            neighbours = new List<int>();
+            focusedHex = -1;
+            neighbours = new Set();
             float hexSize = 40;
             float d = (float)(hexSize * Math.Sqrt(3) / 2); //odległość od centrum do środka ściany
             tiles = mapWidth * mapHeight;
+            Console.WriteLine("sum: " + (new Set(new int[] { 1, 2, 3, 4 }) | new Set(new int[] { 1, 3, 5, 7 })));
+            Console.WriteLine("intesection: " +(new Set(new int[] { 1, 2, 3, 4 }) & new Set(new int[] { 1, 3, 5, 7 })));
 
             hex = new List<Hex>();
             Random r = new Random();
@@ -199,9 +243,9 @@ namespace DiceWars
             InitColors();
         }
 
-        private List<int> GetNeighbours(int a)
+        private Set GetNeighbours(int a)
         {
-            List<int> tmp = new List<int>();
+            Set tmp = new Set();
 
             int odd = a / mapWidth % 2;
 
@@ -246,7 +290,7 @@ namespace DiceWars
         //TODO: get value from server
         private void InitializePlayers()
         {
-            mine = new List<int>();
+            mine = new Set();
             Random r = new Random();
             for (int i = 0; i < 10; i++)
             {
@@ -257,7 +301,7 @@ namespace DiceWars
                     mine.Add(n);
             }
 
-            opponents = new List<int>();
+            opponents = new Set();
             r = new Random();
             for (int i = 0; i < 10; i++)
             {
@@ -282,14 +326,14 @@ namespace DiceWars
 
         public bool Clicked(float x, float y)
         {
-            if (focus < 0)
+            if (focusedHex < 0)
             {
                 for (int i = 0; i < mine.Count; i++)
                 {
                     if (hex[mine[i]].Clicked(x, y))
                     {
-                        focus = mine[i];
-                        hex[focus].BorderColor = Color.Blue;
+                        focusedHex = mine[i];
+                        hex[focusedHex].BorderColor = Color.Blue;
                         neighbours = GetNeighbours(mine[i]);
                         neighbours.ForEach(q => hex[q].BorderColor = Color.White);
                     }
@@ -303,31 +347,31 @@ namespace DiceWars
                     {
                         //attack from focused to clicked
                         Console.WriteLine(String.Format("Move #{0}({1}) -> #{2}({3})",
-                            focus, hex[focus].DiceCount, neighbours[i], hex[neighbours[i]].DiceCount));
+                            focusedHex, hex[focusedHex].DiceCount, neighbours[i], hex[neighbours[i]].DiceCount));
 
                         if (mine.Contains(neighbours[i]))
                         {
-                            if (hex[focus].DiceCount >= 2)
+                            if (hex[focusedHex].DiceCount >= 2)
                             {
-                                hex[neighbours[i]].DiceCount += hex[focus].DiceCount - 2;
-                                hex[focus].DiceCount = 1;
+                                hex[neighbours[i]].DiceCount += hex[focusedHex].DiceCount - 2;
+                                hex[focusedHex].DiceCount = 1;
                             }
                         }
 
-                        else if (hex[focus].DiceCount > hex[neighbours[i]].DiceCount)
+                        else if (hex[focusedHex].DiceCount > hex[neighbours[i]].DiceCount)
                         {
                             if (opponents.Contains(neighbours[i]))
                                 opponents.Remove(neighbours[i]);
-                            if(!mine.Contains(neighbours[i]))
+                            if (!mine.Contains(neighbours[i]))
                             {
                                 mine.Add(neighbours[i]);
-                                hex[neighbours[i]].DiceCount = hex[focus].DiceCount - hex[neighbours[i]].DiceCount - 2;
-                                hex[focus].DiceCount = 1;
+                                hex[neighbours[i]].DiceCount = hex[focusedHex].DiceCount - hex[neighbours[i]].DiceCount - 2;
+                                hex[focusedHex].DiceCount = 1;
                             }
                         }
                     }
                 }
-                hex[focus].BorderColor = Color.Black;
+                hex[focusedHex].BorderColor = Color.Black;
                 neighbours.ForEach(q => hex[q].BorderColor = Color.Black);
 
                 for (int i = 0; i < neighbours.Count; i++)
@@ -336,7 +380,7 @@ namespace DiceWars
                 }
 
                 neighbours.Clear();
-                focus = -1;
+                focusedHex = -1;
                 RefreshMap();
             }
             return true;
@@ -349,12 +393,12 @@ namespace DiceWars
 
         public void MouseMove(float x, float y)
         {
-            if (focus < 0)
+            if (focusedHex < 0)
                 mine.ForEach(w => hex[w].MouseMove(x, y));
             else
             {
                 neighbours.ForEach(w => hex[w].MouseMove(x, y));
-                hex[focus].MouseMove(x, y);
+                hex[focusedHex].MouseMove(x, y);
             }
         }
 
