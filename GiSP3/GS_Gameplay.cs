@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace DiceWars
 {
@@ -16,12 +17,28 @@ namespace DiceWars
         private Map map;
         private string msg;
 
+        public void SendAndReceive(object data)
+        {
+            while (!Program.exit)
+            {
+                Thread.Sleep(2000);
+                //s = "wtf";
+                Console.WriteLine(Program.ip);
+                client = new Client();
+                client.Connect(Program.ip, s);
+            }                     
+        }
+
         CuteText yourTurnCuteText, notCuteText;
 
         public GS_Gameplay() : base()
         {
             InitializeGui();
             turn = true;
+
+            s = "wtf";
+            Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
+            th.Start(Program.ip);            
 
             map = new Map();
             mouseInteractionList.Add(map);
