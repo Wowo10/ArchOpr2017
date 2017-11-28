@@ -93,6 +93,7 @@ namespace DiceWars
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                     isCorrect = false;
                     return false;
                 }

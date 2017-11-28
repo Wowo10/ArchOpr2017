@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Server
@@ -15,82 +14,86 @@ namespace Server
         static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
 
-        static void Mange()
+        static void Manage()
         {
             while (true)
             {
-                int index = 0;
-                while (index<keys.Count)
+                for (int i = 0; i < keys.Count; i++)
                 {
-                    string tmpKey = keys[index];
+                    string tmpKey = keys[i];
 
-                    if (tmpKey!=null && TimeOut.ContainsKey(tmpKey))
+                    if (tmpKey != null && TimeOut.ContainsKey(tmpKey))
                     {
                         TimeSpan time = DateTime.Now - TimeOut[tmpKey];
                         if (time.TotalSeconds > 5)
                         {
-                            Console.WriteLine("Has left");
+                            Console.WriteLine("Someone left");
                             TimeOut.Remove(tmpKey);
                             keys.Remove(tmpKey);
                         }
                     }
-                    index += 1;
-                }                                             
-            
-                
+                }
             }
-
         }
 
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
 
         static void Main(string[] args)
         {
-            Thread thread = new Thread(Mange);
+            Thread thread = new Thread(Manage);
             thread.Start();
 
+            int port = 300;
+            string data;
+            Byte[] bytes = new Byte[256];
+
             TcpListener server = null;
-            Console.WriteLine("Wpisz adres serwera (np. 127.0.0.1, 127.0.0.2 itp)");
-            string ip = Console.ReadLine();
             try
             {
-                Int32 port = 13000;
-                IPAddress localAddr = IPAddress.Parse(ip);
-                server = new TcpListener(localAddr, port);
+                server = new TcpListener(IPAddress.Parse(GetLocalIPAddress()), port);
                 server.Start();
-                Byte[] bytes = new Byte[256];
-                String data = null;
+                data = null;
 
                 while (true)
                 {
-                    Console.Write("Server started! Waiting for packets...");
+                    Console.Write("Server started on ip - {0}, port - {1}! Waiting for packets...", GetLocalIPAddress(), port);
                     TcpClient client = server.AcceptTcpClient();
-                    Console.WriteLine("Connected!");
-                    string key = client.Client.RemoteEndPoint.ToString().Split(':')[0];
+                    Console.WriteLine("Someone has connected!");
+
+                    string key = client.Client.RemoteEndPoint.ToString();
                     if (TimeOut.ContainsKey(key))
                     {
                         TimeOut[key] = DateTime.Now;
                     }
                     else
                     {
-                        Console.WriteLine("Has joined");
+                        Console.WriteLine("Someone new joined from {0}", key);
                         keys.Add(key);
                         TimeOut.Add(key, DateTime.Now);
                     }
-                    
-                    data = null;
+
                     NetworkStream stream = client.GetStream();
 
                     int i;
-
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         data = Encoding.ASCII.GetString(bytes, 0, i);
-                        Console.WriteLine("Received\t{1}{0}", data, client.Client.RemoteEndPoint.ToString().Split(':')[1]);
-
-                        data = data.ToUpper();
-                        byte[] msg = Encoding.ASCII.GetBytes(data);
+                        byte[] msg = Encoding.ASCII.GetBytes(data.ToUpper());
                         stream.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Sent:\t{0}", data);
+
+                        Console.WriteLine("Received\t{1}\t from: {0}", data, client.Client.RemoteEndPoint.ToString());
+                        Console.WriteLine("Sent:\t{0}", data.ToUpper());
                     }
                     client.Close();
                 }
@@ -107,7 +110,7 @@ namespace Server
             }
 
 
-            Console.WriteLine("\nHit enter to continue...");
+            Console.WriteLine("\nHit enter to exit...");
             Console.Read();
         }
     }

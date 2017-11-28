@@ -14,21 +14,21 @@ namespace DiceWars
 
         }
 
-        public void Connect(String server, String message)
+        public void Connect(string server, string message)
         {
             try
             {
-                Int32 port = 13000;
+                int port = 443;
                 TcpClient client = new TcpClient(server, port);
 
-                Byte[] data = Encoding.ASCII.GetBytes(message);
+                byte[] data = Encoding.ASCII.GetBytes(message);
                 NetworkStream stream = client.GetStream();
                 stream.Write(data, 0, data.Length);
                 Console.WriteLine("Sent: {0}", message);
-                data = new Byte[256];
-                String responseData = String.Empty;
-                Int32 bytes = stream.Read(data, 0, data.Length);
-                responseData = Encoding.ASCII.GetString(data, 0, bytes);
+                data = new byte[256];
+
+                int bytes = stream.Read(data, 0, data.Length);
+                string responseData = Encoding.ASCII.GetString(data, 0, bytes);
                 Console.WriteLine("Received: {0}", responseData);
                 stream.Close();
                 client.Close();
