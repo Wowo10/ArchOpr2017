@@ -12,7 +12,6 @@ namespace DiceWars
     {
         private Button btnBack, btnEndOfTurn;
         private Client client;
-        private string s;
         private bool turn;
         private Map map;
         private string msg;
@@ -22,10 +21,9 @@ namespace DiceWars
             while (!Program.exit)
             {
                 Thread.Sleep(2000);
-                //s = "wtf";
                 Console.WriteLine(Program.ip);
                 client = new Client();
-                client.Connect(Program.ip, s);
+                client.Connect(Program.ip, "data");
             }                     
         }
 
@@ -35,15 +33,12 @@ namespace DiceWars
         {
             InitializeGui();
             turn = true;
-
-            s = "wtf";
+            
             Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
             th.Start(Program.ip);            
 
             map = new Map();
             mouseInteractionList.Add(map);
-
-            msg = "" + Program.id;
         }
 
         private void InitializeGui()

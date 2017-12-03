@@ -16,7 +16,6 @@ namespace DiceWars
         private static string imagespath;
         private static string fontpath;
         public static string ip;
-        public static string id;
 
         public static Dictionary<string, string> loadedsettings;
         public static string LoadSetting(string name)
@@ -108,7 +107,6 @@ namespace DiceWars
             app = new RenderWindow(new VideoMode(
                 Convert.ToUInt32(LoadSetting("resx")),
                 Convert.ToUInt32(LoadSetting("resy"))), "Dice Wars");
-            id = new Random(DateTime.Now.Millisecond).Next(0, 200).ToString();
         }
 
         //////////////////////////////////////////////////////////

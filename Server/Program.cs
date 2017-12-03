@@ -69,7 +69,7 @@ namespace Server
                 {
                     Console.Write("Server started on ip - {0}, port - {1}! Waiting for packets...", GetLocalIPAddress(), port);
                     TcpClient client = server.AcceptTcpClient();
-                    Console.WriteLine("Someone has connected!");
+                    Console.WriteLine("Someone connected!");
 
                     string key = client.Client.RemoteEndPoint.ToString();
                     if (TimeOut.ContainsKey(key))
