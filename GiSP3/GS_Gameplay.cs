@@ -4,21 +4,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace DiceWars
 {
     class GS_Gameplay : GameState
     {
-        Button btnBack;
-        Client client;
-        string s;
+        private Button btnBack, btnEndOfTurn;
+        private Client client;
+        private bool turn;
+        private Map map;
+        private string msg;
+
+        public void SendAndReceive(object data)
+        {
+            while (!Program.exit)
+            {
+                Thread.Sleep(2000);
+                Console.WriteLine(Program.ip);
+                client = new Client();
+                client.Connect(Program.ip, "data");
+            }                     
+        }
+
+        CuteText yourTurnCuteText, notCuteText;
 
         public GS_Gameplay() : base()
         {
-            s = "wtf";
-            Console.WriteLine(Program.ip);
-            client = new Client();
-            client.Connect(Program.ip, "xD");
+            InitializeGui();
+            turn = true;
+            
+            Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
+            th.Start(Program.ip);            
+
+            map = new Map();
+            mouseInteractionList.Add(map);
+        }
+
+        private void InitializeGui()
+        {
+            backgroundColor = new Color(40, 50, 90);
 
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
@@ -29,24 +54,57 @@ namespace DiceWars
             btnBack.setPosition(new Vector2f(40, resy - buttonHeight - 40));
             btnBack.ButtonText = "Back";
 
-            backgroundColor = new Color(40, 50, 90);
+            btnEndOfTurn = new Button(buttonWidth, buttonHeight);
+            btnEndOfTurn.setPosition(new Vector2f(resx - buttonWidth - 20, resy - buttonHeight - 160));
+            btnEndOfTurn.ButtonText = "End Turn";
+
+            yourTurnCuteText = new CuteText("", new Vector2f(resx - 160, 60));
+            yourTurnCuteText.setString("Your\r\nTurn");
+
+            notCuteText = new CuteText("", new Vector2f(resx - 160, 25));
+            notCuteText.setString("Not");
 
             mouseInteractionList.Add(btnBack);
+            mouseInteractionList.Add(btnEndOfTurn);
         }
 
         public override void Update()
         {
             base.Update();
 
+            if (DateTime.Now.Second % 4 == 0 && !btnEndOfTurn.getClickable())
+            {
+                btnEndOfTurn.setClickable(true);
+            }
+
             if (btnBack.isActive)
             {
-                client.Connect(Program.ip, (s+="a"));
+                btnEndOfTurn.setClickable(false);
+                client = new Client();
+                client.Connect(Program.ip, "asd");
+            }
+
+            if (btnEndOfTurn.isActive)
+            {
+                turn = !turn;
+                if(!turn)
+                {
+                    mouseInteractionList.Remove(map);
+                }
+                else
+                {
+                    mouseInteractionList.Add(map);
+                }
             }
         }
 
         public override void Render(RenderWindow window)
         {
             base.Render(window);
+            window.Draw(yourTurnCuteText);
+            if (!turn)
+                window.Draw(notCuteText);
+            window.Draw(map);
         }
     }
 }

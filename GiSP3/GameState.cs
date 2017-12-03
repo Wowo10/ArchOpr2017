@@ -60,6 +60,15 @@ namespace DiceWars
             }
         }
 
+        public void ReleaseGui()
+        {
+            for (int i = 0; i < mouseInteractionList.Count; i++)
+            {
+                mouseInteractionList[i].MouseMove(-1000, -1000);
+                mouseInteractionList[i].Released(-100000, -10000);
+            }
+        }
+
         //for taking the input
         public virtual void Update() { }
 

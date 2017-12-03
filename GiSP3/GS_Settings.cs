@@ -9,11 +9,18 @@ namespace DiceWars
 {
     class GS_Settings : GameState
     {
-        Button btnToMenu;
-        CuteText textSettings;
+        private Button btnToMenu;
+        private CuteText textSettings;
 
         public GS_Settings() : base()
         {
+            InitializeGui();
+        }
+
+        private void InitializeGui()
+        {
+            backgroundColor = new Color(30, 110, 60);
+
             int resx = Program.LoadIntSetting("resx");
             int resy = Program.LoadIntSetting("resy");
             int buttonWidth = Program.LoadIntSetting("buttonWidth");
@@ -25,8 +32,6 @@ namespace DiceWars
             btnToMenu = new Button(buttonWidth, buttonHeight);
             btnToMenu.setPosition(new Vector2f(40, resy - buttonHeight - 40));
             btnToMenu.ButtonText = "Back";
-
-            backgroundColor = new Color(30, 110, 60);
 
             mouseInteractionList.Add(btnToMenu);
         }

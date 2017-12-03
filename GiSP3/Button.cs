@@ -12,6 +12,7 @@ namespace DiceWars
         private bool clicked;
         private bool active;
         private Font font;
+        private bool clickable;
 
         public Button()
         {
@@ -19,6 +20,7 @@ namespace DiceWars
             OutlineThickness = 2;
 
             clicked = false;
+            clickable = true;
 
             text = new Text("", font, 20);
             text.Color = Color.Black;
@@ -35,6 +37,25 @@ namespace DiceWars
         {
             Position = pos;
             text.Position = new Vector2f(pos.X + text.Position.X, pos.Y + text.Position.Y);
+        }
+
+        public void setClickable(bool p)
+        {
+            clickable = p;
+            if (p)
+            {
+                FillColor = Color.White;
+                OutlineColor = Color.White;
+            }
+            else
+            {
+                OutlineColor = FillColor = new Color(50, 50, 50);
+            }
+        }
+
+        public bool getClickable()
+        {
+            return clickable;
         }
 
         private Text text;
@@ -73,30 +94,31 @@ namespace DiceWars
             }
         }
 
-        public void Clicked(float x, float y)
+        public bool Clicked(float x, float y)
         {
-            if (GetGlobalBounds().Contains(x, y))
+            if (GetGlobalBounds().Contains(x, y) && clickable)
             {
                 FillColor = Color.Green;
                 clicked = true;
             }
+            return true;
         }
 
         public void Released(float x, float y)
         {
-            if (clicked)
+            if (clicked && clickable)
             {
                 FillColor = Color.White;
                 clicked = false;
-                
-                if(GetGlobalBounds().Contains(x,y))
+
+                if (GetGlobalBounds().Contains(x, y))
                     active = true;
             }
         }
 
         public void MouseMove(float x, float y)
         {
-            if (GetGlobalBounds().Contains(x, y))
+            if (GetGlobalBounds().Contains(x, y) && clickable)
             {
                 onMouseEnter();
             }
@@ -114,6 +136,8 @@ namespace DiceWars
         public void onMouseLeave()
         {
             OutlineColor = Color.White;
+            if (!clickable)
+                OutlineColor = new Color(50, 50, 50);
         }
 
         public new void Draw(RenderTarget target, RenderStates states)

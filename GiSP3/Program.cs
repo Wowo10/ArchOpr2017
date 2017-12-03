@@ -10,11 +10,11 @@ namespace DiceWars
 {
     static class Program
     {
-        static RenderWindow app;
+        private static RenderWindow app;
         public static bool exit;
-        static string settingspath;
-        static string imagespath;
-        static string fontpath;
+        private static string settingspath;
+        private static string imagespath;
+        private static string fontpath;
         public static string ip;
 
         public static Dictionary<string, string> loadedsettings;

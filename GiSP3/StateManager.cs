@@ -76,7 +76,7 @@ namespace DiceWars
         {
             GameState helpstate = new GameState();
             if (statesqueue.Peek().nextstate != States.NONE)
-            {                
+            {
                 if (statesqueue.Peek().nextstate == States.GS_MENU)
                 {
                     helpstate = new GS_Menu();
@@ -105,7 +105,7 @@ namespace DiceWars
             statesqueue.Peek().nextstate = States.NONE;
             statesqueue.Peek().stateaction = StateActions.NONE;
 
-            statesqueue.Push(helpstate);            
+            statesqueue.Push(helpstate);
         }
 
         public void PopState()
@@ -118,21 +118,29 @@ namespace DiceWars
 
         public void MainLoop(RenderWindow window)
         {
-            if (statesqueue.Peek().stateaction != StateActions.NONE)
+            StateActions peekedState = statesqueue.Peek().stateaction;
+            switch (peekedState)
             {
-                if(statesqueue.Peek().stateaction == StateActions.PUSH)
-                {
+                case StateActions.PUSH:
+                    statesqueue.Peek().ReleaseGui();
                     PushState();
-                }
-                else if(statesqueue.Peek().stateaction == StateActions.POP)
-                {
+                    break;
+
+                case StateActions.POP:
                     PopState();
-                }
-                else if (statesqueue.Peek().stateaction == StateActions.POPNPUSH)
-                {
+                    break;
+
+                case StateActions.POPNPUSH:
+                    statesqueue.Peek().ReleaseGui();
                     PopState();
                     PushState();
-                }
+                    break;
+
+                case StateActions.NONE:
+                    break;
+
+                default:
+                    break;
             }
 
             if (statesqueue.Count == 0)
@@ -144,6 +152,6 @@ namespace DiceWars
             statesqueue.Peek().Update();
             statesqueue.Peek().Render(window);
         }
-        
+
     }
 }
