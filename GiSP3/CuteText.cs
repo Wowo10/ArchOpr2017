@@ -54,6 +54,11 @@ namespace DiceWars
             lowerText.DisplayedString = txt;
         }
 
+        public string getString()
+        {
+            return mainText.DisplayedString;
+        }
+
         public void Draw(RenderTarget target, RenderStates states)
         {
             target.Draw(upperText, states);

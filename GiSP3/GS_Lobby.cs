@@ -6,6 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+
 
 namespace DiceWars
 {
@@ -69,53 +74,16 @@ namespace DiceWars
 
     class GS_Lobby : GameState
     {
-        static bool isCorrect;
-        //TODO: check if it is a valid ip (regexp)
-        static bool isValidIPAddress(string ip)
-        {
-            if (ip == null)
-                return false;
-            Program.ip = null;
-            string[] tmp = ip.Trim().Split('.');
-            if (tmp.Length == 4)
-            {
-                try
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        int octet = Convert.ToInt16(tmp[i]);
-                        if (octet > 255 || octet < 0)
-                        {
-                            isCorrect = false;
-                            return false;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    isCorrect = false;
-                    return false;
-                }
-
-                Program.ip = ip;
-                isCorrect = true;
-                return true;
-
-            }
-            else
-            {
-                isCorrect = false;
-                return false;
-            }
-
-        }
-
         private Button btnToMenu, btnPasteIP, btnConnectToGame;
+
         private CuteText text;
+
+        List<CuteText> players;
 
         public GS_Lobby() : base()
         {
+            players = new List<CuteText>();
+
             InitializeGui();
         }
 
@@ -152,6 +120,7 @@ namespace DiceWars
         {
             if (btnToMenu.isActive)
             {
+                Program.Disconnect();
                 stateaction = StateActions.POP;
             }
 
@@ -161,6 +130,9 @@ namespace DiceWars
                 if (isValidIPAddress(tmpIP))
                 {
                     text.setString("IP: " + tmpIP);
+
+                    Program.endpoint = new IPEndPoint(IPAddress.Parse(tmpIP),
+                                    Program.LoadIntSetting("port"));
                 }
                 else
                 {
@@ -168,12 +140,21 @@ namespace DiceWars
                 }
             }
 
-            if (btnConnectToGame.isActive && isCorrect)
+            if (btnConnectToGame.isActive)
             {
                 Console.WriteLine("Connecting...");
-                stateaction = StateActions.PUSH;
-                nextstate = States.GS_GAMEPLAY;
+
+                Program.Connect();
             }
+
+            ///////////////////////////////////////////
+
+            Program.Receive();
+            if (Program.receivedstack.Count != 0)
+            {
+                Console.WriteLine(Program.receivedstack.Pop());
+            }
+
         }
 
         public override void Render(RenderWindow window)
@@ -181,5 +162,11 @@ namespace DiceWars
             base.Render(window);
             window.Draw(text);
         }
+
+        static bool isValidIPAddress(string ip)
+        {
+            return ip.Split('.').Length == 4;
+        }
+
     }
 }

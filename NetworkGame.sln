@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceWars", "GiSP3\DiceWars.csproj", "{D0607522-B48D-4185-83CC-9BB0743B98DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{0CD5ED2C-4FE8-406C-AF49-A09512D8B699}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdpServer", "UdpServer\UdpServer.csproj", "{DCCB0027-5EBE-4F84-AB57-243A70D139E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0CD5ED2C-4FE8-406C-AF49-A09512D8B699}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CD5ED2C-4FE8-406C-AF49-A09512D8B699}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CD5ED2C-4FE8-406C-AF49-A09512D8B699}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCCB0027-5EBE-4F84-AB57-243A70D139E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCCB0027-5EBE-4F84-AB57-243A70D139E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCCB0027-5EBE-4F84-AB57-243A70D139E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCCB0027-5EBE-4F84-AB57-243A70D139E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

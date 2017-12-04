@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using SFML.Window;
 using SFML.Graphics;
 using SFML.System;
-
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.IO;
+using System.Text;
 
 namespace DiceWars
 {
@@ -15,7 +19,92 @@ namespace DiceWars
         private static string settingspath;
         private static string imagespath;
         private static string fontpath;
-        public static string ip;
+
+        //WowoUpdExperimentalsheet
+
+        public static UdpClient client;
+        public static Task sending, receiving;
+        public static IPEndPoint endpoint;
+        private static bool connected;
+
+        public static void Connect()
+        {
+            connected = true;
+            client.Connect(endpoint);
+            Send("join");
+        }
+
+        public static void Disconnect()
+        { //need of also cancel active tasks!
+            Console.WriteLine("Disconnecting!");
+            if (connected)
+            {
+                Console.WriteLine("Rly");
+                connected = false;
+                SendNow("quit");
+                client.Close();
+            }
+        }
+
+        public static void SendNow(string message)
+        {
+            client.Send(Encoding.ASCII.GetBytes(message), message.Length);
+        }
+
+        public async static void Send(string message)
+        {
+            sending = Task.Run(() =>
+            {
+                //Console.WriteLine("Sending: "+message+", to: "+endpoint);
+                client.Send(Encoding.ASCII.GetBytes(message), message.Length);
+            });
+
+            if (sending.IsCompleted)
+                await sending;
+        }
+
+        public static Stack<string> receivedstack;
+        public async static void Receive()
+        {
+            if (connected)
+            {
+                receiving = Task.Run(() =>
+                {
+                    if (connected) //trust me this makes sense with async
+                    {
+                        var receivedData = client.Receive(ref endpoint);
+                        receivedstack.Push(Encoding.ASCII.GetString(receivedData));
+                        //Console.WriteLine("Received: " + temp);
+                    }
+                });
+
+                if (receiving.IsCompleted)
+                    await receiving;
+            }
+        }
+
+        //end of WowoUpdExperimentalsheet
+
+        static Program()
+        {
+            settingspath = "resources/user/settings.csv";
+            imagespath = "resources/images/";
+            fontpath = "resources/fonts/";
+            loadedsettings = new Dictionary<string, string>();
+            loadedtextures = new Dictionary<string, Texture>();
+
+            app = new RenderWindow(new VideoMode(
+                Convert.ToUInt32(LoadSetting("resx")),
+                Convert.ToUInt32(LoadSetting("resy"))), "Dice Wars");
+
+            //Wowosheet
+            client = new UdpClient();
+            endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 11000);
+
+            connected = false;
+
+            receivedstack = new Stack<string>();
+        }
 
         public static Dictionary<string, string> loadedsettings;
         public static string LoadSetting(string name)
@@ -94,19 +183,6 @@ namespace DiceWars
                 Console.WriteLine("Font read error - no such file");
                 return new Font(fontpath + "Font.otf");
             }
-        }
-
-        static Program()
-        {
-            settingspath = "resources/user/settings.csv";
-            imagespath = "resources/images/";
-            fontpath = "resources/fonts/";
-            loadedsettings = new Dictionary<string, string>();
-            loadedtextures = new Dictionary<string, Texture>();
-
-            app = new RenderWindow(new VideoMode(
-                Convert.ToUInt32(LoadSetting("resx")),
-                Convert.ToUInt32(LoadSetting("resy"))), "Dice Wars");
         }
 
         //////////////////////////////////////////////////////////

@@ -11,31 +11,15 @@ namespace DiceWars
     class GS_Gameplay : GameState
     {
         private Button btnBack, btnEndOfTurn;
-        private Client client;
         private bool turn;
         private Map map;
-        private string msg;
-
-        public void SendAndReceive(object data)
-        {
-            while (!Program.exit)
-            {
-                Thread.Sleep(2000);
-                Console.WriteLine(Program.ip);
-                client = new Client();
-                client.Connect(Program.ip, "data");
-            }                     
-        }
 
         CuteText yourTurnCuteText, notCuteText;
 
         public GS_Gameplay() : base()
         {
             InitializeGui();
-            turn = true;
-            
-            Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
-            th.Start(Program.ip);            
+            turn = true;           
 
             map = new Map();
             mouseInteractionList.Add(map);
@@ -80,8 +64,6 @@ namespace DiceWars
             if (btnBack.isActive)
             {
                 btnEndOfTurn.setClickable(false);
-                client = new Client();
-                client.Connect(Program.ip, "asd");
             }
 
             if (btnEndOfTurn.isActive)
@@ -103,7 +85,8 @@ namespace DiceWars
             base.Render(window);
             window.Draw(yourTurnCuteText);
             if (!turn)
-                window.Draw(notCuteText);
+                window.Draw(notCuteText); //Wowo approves!
+
             window.Draw(map);
         }
     }
