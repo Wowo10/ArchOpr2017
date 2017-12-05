@@ -14,8 +14,9 @@ namespace DiceWars
 
         }
 
-        public void Connect(string server, string message)
+        public string Connect(string server, string message)
         {
+            string responseData = null;
             try
             {
                 int port = 443;
@@ -28,10 +29,11 @@ namespace DiceWars
                 data = new byte[256];
 
                 int bytes = stream.Read(data, 0, data.Length);
-                string responseData = Encoding.ASCII.GetString(data, 0, bytes);
+                responseData = Encoding.ASCII.GetString(data, 0, bytes);
                 Console.WriteLine("Received: {0}", responseData);
                 stream.Close();
                 client.Close();
+
             }
             catch (ArgumentNullException e)
             {
@@ -41,6 +43,7 @@ namespace DiceWars
             {
                 Console.WriteLine("SocketException: {0}", e);
             }
+            return responseData;
         }
     }
 }

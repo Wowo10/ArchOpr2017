@@ -15,15 +15,24 @@ namespace DiceWars
         private bool turn;
         private Map map;
         private string msg;
+        private string response;
 
-        public void SendAndReceive(object data)
+        public void SendAndReceive()
         {
             while (!Program.exit)
             {
                 Thread.Sleep(2000);
                 Console.WriteLine(Program.ip);
                 client = new Client();
-                client.Connect(Program.ip, "data");
+                if (msg != null)
+                {
+                    response=client.Connect(Program.ip, msg);
+                    msg = null;
+                }
+                else
+                {
+                    response=client.Connect(Program.ip, "#");
+                }
             }                     
         }
 
@@ -33,11 +42,14 @@ namespace DiceWars
         {
             InitializeGui();
             turn = true;
-            
-            Thread th = new Thread(new ParameterizedThreadStart(SendAndReceive));
+
+            msg = null;
+
+            Thread th = new Thread(SendAndReceive);
             th.Start(Program.ip);            
 
-            map = new Map();
+            map = new Map();//new Map(response)
+            response = null;
             mouseInteractionList.Add(map);
         }
 
@@ -79,9 +91,7 @@ namespace DiceWars
 
             if (btnBack.isActive)
             {
-                btnEndOfTurn.setClickable(false);
-                client = new Client();
-                client.Connect(Program.ip, "asd");
+                btnEndOfTurn.setClickable(false);               
             }
 
             if (btnEndOfTurn.isActive)

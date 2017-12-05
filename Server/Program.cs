@@ -13,6 +13,10 @@ namespace Server
     {
         static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
+        static Dictionary<string, Queue<string>> orders = new Dictionary<string, Queue<string>>();
+        static int whoseTurn = -1;
+        static int[] fieldsState =new int[36];//ilość kostek na danym polu
+        static int[] diecesState = new int[36];//przyporządkowanie gracza do pola
 
         static void Manage()
         {
@@ -29,6 +33,7 @@ namespace Server
                         {
                             Console.WriteLine("Someone left");
                             TimeOut.Remove(tmpKey);
+                            orders.Remove(tmpKey);
                             keys.Remove(tmpKey);
                         }
                     }
@@ -47,6 +52,95 @@ namespace Server
                 }
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+        public static string GenerateMap(int players)
+        {
+            int numberOfFiels = 36;
+
+            fieldsState = new int[numberOfFiels];
+            diecesState = new int[numberOfFiels];
+
+
+            Random rand = new Random();
+            int division = numberOfFiels / players;
+            List<int> list = new List<int>();
+            int[] index = new int[numberOfFiels];
+            int player = 1;
+            for (int i = 0; i < numberOfFiels; i++)
+            {
+                list.Add(i);
+            }
+            for (int i = 0; i < players; i++)
+            {
+                for (int j = 0; j < division; j++)
+                {
+
+                    int los = rand.Next(list.Count);
+                    fieldsState[list[los]] = player;
+                    diecesState[list[los]] = rand.Next(1,5);
+                    list.RemoveAt(los);
+                }
+                player++;
+            }
+            for (int i = 0; i < numberOfFiels; i++)
+            {
+                if (fieldsState[i]==0)
+                {
+                    fieldsState[i] = player;
+                    diecesState[i] = rand.Next(1, 5);
+                }
+            }
+            StringBuilder map = new StringBuilder();
+
+            for (int i = 0; i < numberOfFiels; i++)
+            {
+                map.Append(fieldsState[i]);
+                map.Append(':');
+                map.Append(diecesState[i]);
+                map.Append(';');
+            }
+
+            return map.ToString();
+            
+        }
+
+        public static string Respond(int myFieldIndex, int enemyFieldIndex)
+        {
+            Random rand = new Random();
+            if (fieldsState[myFieldIndex]==fieldsState[enemyFieldIndex] || diecesState[myFieldIndex]==1)
+            {
+                return null;
+            }
+            int los1 = 0;
+            int los2 = 0;
+
+            for (int i = 0; i < diecesState[myFieldIndex]; i++)
+            {
+                los1 += rand.Next(1, 7);
+            }
+            for (int i = 0; i < diecesState[enemyFieldIndex]; i++)
+            {
+                los2 += rand.Next(1, 7);
+            }
+
+            if (los1 > los2)
+            {
+                diecesState[enemyFieldIndex] = diecesState[myFieldIndex];
+                diecesState[myFieldIndex] = 1;
+                fieldsState[myFieldIndex] = fieldsState[myFieldIndex];
+            }
+            else if (los1 < los2)
+            {
+                diecesState[myFieldIndex] = 1;
+            }
+            else
+            {
+                diecesState[enemyFieldIndex] = 1;
+                diecesState[myFieldIndex] = 1;
+            }
+            return myFieldIndex.ToString() + ":" + fieldsState[myFieldIndex] + "," + diecesState[myFieldIndex] + ";" + enemyFieldIndex+":"+fieldsState[enemyFieldIndex]+","+diecesState[enemyFieldIndex];
+
         }
 
         static void Main(string[] args)
@@ -81,14 +175,22 @@ namespace Server
                         Console.WriteLine("Someone new joined from {0}", key);
                         keys.Add(key);
                         TimeOut.Add(key, DateTime.Now);
+                        Queue<string> queue = new Queue<string>();//gracz dostaje nową kolejkę rozkazów
+                        orders.Add(key, queue);
                     }
 
                     NetworkStream stream = client.GetStream();
+
+
+
 
                     int i;
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         data = Encoding.ASCII.GetString(bytes, 0, i);
+
+
+
                         byte[] msg = Encoding.ASCII.GetBytes(data.ToUpper());
                         stream.Write(msg, 0, msg.Length);
 
