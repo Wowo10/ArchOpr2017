@@ -14,7 +14,7 @@ namespace Server
         static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
         static Dictionary<string, Queue<string>> orders = new Dictionary<string, Queue<string>>();
-        static int whoseTurn = -1;
+        static int whoseTurn = 1;
         static int[] fieldsState =new int[36];//ilość kostek na danym polu
         static int[] diecesState = new int[36];//przyporządkowanie gracza do pola
 

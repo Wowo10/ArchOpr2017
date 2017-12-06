@@ -46,9 +46,24 @@ namespace DiceWars
             msg = null;
 
             Thread th = new Thread(SendAndReceive);
-            th.Start(Program.ip);            
+            th.Start();
 
-            map = new Map();//new Map(response)
+            Random r = new Random();
+            int[] state = new int[36];
+            int[,] dieces = new int[6, 6];
+            for (int i = 0; i < 36; i++)
+            {
+                state[i]=r.Next(1, 4);              
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    dieces[i, j] = r.Next(3, 6);
+                }
+            }
+            map = new Map(3,3,state,dieces);
+            //map = new Map();//new Map(response)
             response = null;
             mouseInteractionList.Add(map);
         }

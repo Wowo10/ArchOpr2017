@@ -232,8 +232,10 @@ namespace DiceWars
         /// Set to lista intów. Numery pól należące do gracza.
         /// </summary>
         private List<Hex> hex;
-        private Set mine, opponents, neighbours;
-        private Color mineColor, opponentColor, neighbourColor, defaultColor;
+        private Set mine, neighbours;
+        private Color mineColor, defaultColor, neighbourColor;
+        private Color[] opponentColors;
+        private Set[] opponents;
 
         private int mapWidth = 6;
         private int mapHeight = 6;
@@ -248,9 +250,31 @@ namespace DiceWars
             tiles = mapWidth * mapHeight;
 
             InitializeHex();
-            neighbours = new Set();
-            InitializePlayers();
+            //neighbours = new Set();
+            //InitializePlayers();
             InitColors();
+        }
+
+        public Map(int players, int myNumber,int[]state,int[,]dieces)
+        {
+
+            List<Color> colors = new List<Color>();
+            colors.Add(Color.Green);
+            colors.Add(Color.Magenta);
+            colors.Add(Color.Cyan);
+            colors.Add(Color.Red);
+            colors.Add(Color.Black);
+
+            Color mine = colors[myNumber-1];
+
+            colors.RemoveAt(myNumber - 1);
+
+            //tiles = mapWidth * mapHeight;
+            InitializeHex(dieces);
+            neighbours = new Set();
+            InitColors(players, mine, colors);
+            InitializePlayers(myNumber, players, state,mineColor,opponentColors);
+
         }
 
         private void InitializeHex()
@@ -264,6 +288,26 @@ namespace DiceWars
                 for (int j = 0; j < mapWidth; j++)
                 {
                     hex.Add(new Hex(hexSize - 0.5f, r.Next(0, 10))); //-0.5f to wizualna, kosmetyczna zmiana
+                    //zmiana pozycji; 2*d to stała szerokość pomiędzy wierzchołkami hexów w poziomie.
+                    //jeśli jest nieparzysty wiersz należy przesunąć o pół szerokości (o 1*d) w poziomie.
+                    //w pionie kolejny wiersz jest niżej o 1.75 hexSize - wynika to z przesunięcia w poziomie nieparzystych wierszy
+                    hex[hex.Count - 1].Position = new Vector2f((j + 1) * 2 * d + (i % 2) * d, (i + 1 - i / 4) * 2 * hexSize);
+                }
+            }
+        }
+
+
+        private void InitializeHex(int[,]dieces)
+        {
+            float d = (float)(hexSize * Math.Sqrt(3) / 2); //odległość od centrum do środka ściany, pomocnicza zmienna
+            hex = new List<Hex>();
+            Random r = new Random();
+
+            for (float i = 0; i < mapHeight; i++)
+            {
+                for (int j = 0; j < mapWidth; j++)
+                {
+                    hex.Add(new Hex(hexSize - 0.5f, dieces[Convert.ToInt32(i),j])); //-0.5f to wizualna, kosmetyczna zmiana
                     //zmiana pozycji; 2*d to stała szerokość pomiędzy wierzchołkami hexów w poziomie.
                     //jeśli jest nieparzysty wiersz należy przesunąć o pół szerokości (o 1*d) w poziomie.
                     //w pionie kolejny wiersz jest niżej o 1.75 hexSize - wynika to z przesunięcia w poziomie nieparzystych wierszy
@@ -313,38 +357,94 @@ namespace DiceWars
         }
 
         //TODO: get value from server
-        private void InitializePlayers()
+   //    private void InitializePlayers()
+   // {
+   //     mine = new Set();
+   //     Random r = new Random(); // tutaj
+   //     for (int i = 0; i < 10; i++)
+   //     {
+   //         int n = r.Next(tiles);
+   //         if (mine.Contains(n))
+   //             i--;
+   //         else
+   //             mine.Add(n);
+   //     }
+   //
+   //     opponents = new Set();
+   //     r = new Random();
+   //     for (int i = 0; i < 10; i++)
+   //     {
+   //         int n = r.Next(tiles);
+   //         if (opponents.Contains(n) || mine.Contains(n))
+   //             i--;
+   //         else
+   //             opponents.Add(n);
+   //     }
+   //
+   //     mine.ForEach(z => hex[z].Occupation = Color.Green);
+   //     opponents.ForEach(z => hex[z].Occupation = Color.Red);
+   // }
+
+
+        private void InitializePlayers(int myNumber,int players, int[] states, Color player, Color[]colors)
         {
             mine = new Set();
-            Random r = new Random(); // tutaj
-            for (int i = 0; i < 10; i++)
+            opponents = new Set[players-1];
+            for (int i = 0; i < opponents.Length; i++)
             {
-                int n = r.Next(tiles);
-                if (mine.Contains(n))
-                    i--;
-                else
-                    mine.Add(n);
+                opponents[i] = new Set();
             }
 
-            opponents = new Set();
-            r = new Random();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < states.Length; i++)
             {
-                int n = r.Next(tiles);
-                if (opponents.Contains(n) || mine.Contains(n))
-                    i--;
+                if (states[i] == myNumber)
+                {
+                    mine.Add(i);
+                }
                 else
-                    opponents.Add(n);
+                    switch (myNumber)
+                    {
+                        case 1:
+                            opponents[states[i] - 2].Add(i);
+                            break;
+                        case 2:
+                            if (states[i] == 1)
+                                opponents[states[i] - 1].Add(i);
+                            else if (states[i] == 3)
+                                opponents[states[i] - 2].Add(i);
+                            break;
+                        case 3:
+                            opponents[states[i] - 1].Add(i);
+                            break;                        
+                    }
+                
             }
+        
 
-            mine.ForEach(z => hex[z].Occupation = Color.Green);
-            opponents.ForEach(z => hex[z].Occupation = Color.Red);
+            mine.ForEach(z => hex[z].Occupation = player);
+            for (int i = 0; i < opponents.Length; i++)
+            {
+                opponents[i].ForEach(z => hex[z].Occupation = colors[i]);
+            }
+            
         }
 
         private void InitColors()
         {
             mineColor = Color.Green;
-            opponentColor = Color.Red;
+            //opponentColor = Color.Red;
+            neighbourColor = Color.Magenta;
+            defaultColor = Color.Black;
+        }
+
+        private void InitColors(int players, Color mine, List<Color> color)
+        {
+            mineColor = mine;
+            opponentColors = new Color[players-1];
+            for (int i = 0; i < opponentColors.Length; i++)
+            {
+                opponentColors[i] = color[i];
+            }
             neighbourColor = Color.Magenta;
             defaultColor = Color.Black;
         }
@@ -388,8 +488,12 @@ namespace DiceWars
                         // jeśli na inne pole. jeśli mamy więcej kostek niż przciwnik
                         else if (hex[focusedHex].DiceCount > hex[neighbours[i]].DiceCount)
                         {
-                            if (opponents.Contains(neighbours[i]))
-                                opponents.Remove(neighbours[i]);
+                            for (int j = 0; j < opponents.Length; j++)
+                            {
+                                if (opponents[j].Contains(neighbours[i]))
+                                    opponents[j].Remove(neighbours[i]);
+                            }
+                           
 
                             mine.Add(neighbours[i]);
                             hex[neighbours[i]].DiceCount = hex[focusedHex].DiceCount - hex[neighbours[i]].DiceCount - 2;
@@ -398,7 +502,7 @@ namespace DiceWars
                     }
                 }
                 //zresetuj widok mapy
-                RefreshMap();
+                RefreshMap(mineColor,opponentColors);
             }
             return true;
         }
@@ -442,7 +546,29 @@ namespace DiceWars
             focusedHex = -1;
 
             mine.ForEach(z => hex[z].Occupation = Color.Green);
-            opponents.ForEach(z => hex[z].Occupation = Color.Red);
+            for (int i = 0; i < opponents.Length; i++)
+            {
+                opponents[i].ForEach(z => hex[z].Occupation = Color.Red);
+            }
+            
+        }
+        private void RefreshMap(Color player, Color[] players)
+        {
+            hex[focusedHex].BorderColor = Color.Black;
+            neighbours.ForEach(q => hex[q].BorderColor = Color.Black);
+
+            for (int i = 0; i < neighbours.Count; i++)
+                hex[neighbours[i]].Released(-100, -100);
+
+            neighbours.Clear();
+            focusedHex = -1;
+
+            mine.ForEach(z => hex[z].Occupation = player);
+            for (int i = 0; i < opponents.Length; i++)
+            {
+                opponents[i].ForEach(z => hex[z].Occupation = players[i]);
+            }
+
         }
     }
 }
