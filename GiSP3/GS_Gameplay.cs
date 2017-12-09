@@ -14,7 +14,6 @@ namespace DiceWars
         private Client client;
         private bool turn;
         private Map map;
-        private string response;
 
         public void SendAndReceive()
         {
@@ -23,8 +22,26 @@ namespace DiceWars
                 Thread.Sleep(2000);
                 Console.WriteLine(Program.ip);
                 client = new Client();
-                response = client.Connect(Program.ip, "#"); //do obsłużenia: odświeżanie mapy
-            
+                if (turn)
+                {
+                    client.Connect(Program.ip, "#");
+                }
+                else
+                {
+                    if (client.Connect(Program.ip, "?") == "Y")
+                    {
+                        turn = true;
+                        btnEndOfTurn.setClickable(true);
+                        map = Map.ReadMap(client.Connect(Program.ip, "!"));                        
+                        mouseInteractionList.Add(map);
+                    }
+                    else
+                    {
+                        Thread.Sleep(5000);
+                        map = Map.ReadMap(client.Connect(Program.ip, "!"));
+                    }
+                                                                        
+                }                                                     
             }                     
         }
 
@@ -32,21 +49,20 @@ namespace DiceWars
 
         public GS_Gameplay() : base()
         {
+            turn = false;
             Client client = new Client();
             string tmpMap = client.Connect(Program.ip, "!");
             int tmp = tmpMap.Length;
-            map = Map.read(tmpMap);            
+            map = Map.ReadMap(tmpMap);            
             InitializeGui();
-            turn = true;// do obsłużenia przez serwer
 
             Thread th = new Thread(SendAndReceive);
             th.Start();
          
-            response = null;
 
          
 
-            mouseInteractionList.Add(map);
+           // mouseInteractionList.Add(map);
         }
 
         private void InitializeGui()
@@ -65,6 +81,7 @@ namespace DiceWars
             btnEndOfTurn = new Button(buttonWidth, buttonHeight);
             btnEndOfTurn.setPosition(new Vector2f(resx - buttonWidth - 20, resy - buttonHeight - 160));
             btnEndOfTurn.ButtonText = "End Turn";
+            btnEndOfTurn.setClickable(false);
 
             yourTurnCuteText = new CuteText("", new Vector2f(resx - 160, 60));
             yourTurnCuteText.setString("Your\r\nTurn");
@@ -80,26 +97,25 @@ namespace DiceWars
         {
             base.Update();
 
-            if (DateTime.Now.Second % 4 == 0 && !btnEndOfTurn.getClickable())
-            {
-                btnEndOfTurn.setClickable(true);
-            }
+            //if (DateTime.Now.Second % 4 == 0 && !btnEndOfTurn.getClickable())
+            //{
+            //    btnEndOfTurn.setClickable(true);
+            //}
 
             if (btnBack.isActive)
             {
-                btnEndOfTurn.setClickable(false);               
+                //btnEndOfTurn.setClickable(false);               
             }
 
+     
             if (btnEndOfTurn.isActive)
             {
-                turn = !turn;
-                if(!turn)
+                if(btnEndOfTurn.getClickable())
                 {
                     mouseInteractionList.Remove(map);
-                }
-                else
-                {
-                    mouseInteractionList.Add(map);
+                    string nothing = client.Connect(Program.ip, "&");
+                    turn = false;
+                    btnEndOfTurn.setClickable(false);
                 }
             }
         }

@@ -42,7 +42,7 @@ namespace DiceWars
             }
 
             Font f = Program.LoadFont("Font.otf");
-            Random w = new Random(DateTime.Now.Millisecond);
+            //Random w = new Random(DateTime.Now.Millisecond);
             text = new Text(a.ToString(), f, 20);
             //TODO: liczba kostek pobierana z serwera.
         }
@@ -279,7 +279,7 @@ namespace DiceWars
 
         }
 
-        public static Map read(string map)
+        public static Map ReadMap(string map)
         {
             string[] tmp = map.Split(';');
             int myNumber = Convert.ToInt16(tmp[tmp.Length- 2]);

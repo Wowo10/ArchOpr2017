@@ -11,11 +11,17 @@ namespace Server
 {
     class Program
     {
-        static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
+        private static int setMaxPlayers = 2;
+        static Dictionary<string, DateTime> timeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
-        static int[] fieldsState =new int[36];//ilość kostek na danym polu
-        static int[] diecesState = new int[36];//przyporządkowanie gracza do pola
-
+        static bool[] avaible = new bool[setMaxPlayers];
+        static Dictionary<string, int> numberOfPlayer = new Dictionary<string, int>();
+        private static int mapSize = 36;
+        static int[] fieldsState =new int[mapSize];//ilość kostek na danym polu
+        static int[] diecesState = new int[mapSize];//przyporządkowanie gracza do pola
+        private static int forHowManyPlayers = 0;
+        private static bool isCreation =false;
+        private static int whoseTurn = 1;
         
         static void Manage()
         {
@@ -25,15 +31,17 @@ namespace Server
                 {
                     string tmpKey = keys[i];
 
-                    if (tmpKey != null && TimeOut.ContainsKey(tmpKey))
+                    if (tmpKey != null && timeOut.ContainsKey(tmpKey))
                     {
-                        TimeSpan time = DateTime.Now - TimeOut[tmpKey];
-                        if (time.TotalSeconds > 5)
+                        TimeSpan time = DateTime.Now - timeOut[tmpKey];
+                        if (time.TotalSeconds > 10)
                         {
                             Console.WriteLine(keys.Count);
                             Console.WriteLine("Someone left");
-                            TimeOut.Remove(tmpKey);
+                            timeOut.Remove(tmpKey);
                             keys.Remove(tmpKey);
+                            avaible[numberOfPlayer[tmpKey]-1] = false;
+                            numberOfPlayer.Remove(tmpKey);
                             break;
                         }
                     }
@@ -56,6 +64,7 @@ namespace Server
 
         public static string GenerateMap(int players)
         {
+            forHowManyPlayers = players;
             int numberOfFiels = 36;
 
             fieldsState = new int[numberOfFiels];
@@ -91,6 +100,7 @@ namespace Server
                     diecesState[i] = rand.Next(1, 7);
                 }
             }
+            isCreation = true;
             StringBuilder map = new StringBuilder();
 
             for (int i = 0; i < numberOfFiels; i++)
@@ -107,12 +117,32 @@ namespace Server
             
         }
 
+        public static string ReturnMap(int myNumber)
+        {
+
+            StringBuilder map = new StringBuilder();
+
+            for (int i = 0; i < mapSize; i++)
+            {
+                map.Append(fieldsState[i]);
+                map.Append(':');
+                map.Append(diecesState[i]);
+                map.Append(';');
+            }
+            map.Append(myNumber);
+            map.Append(';');
+            map.Append(forHowManyPlayers);
+            return map.ToString();
+
+        }
+
+
         public static string Respond(int myFieldIndex, int enemyFieldIndex)
         {
             Random rand = new Random();
             if (diecesState[myFieldIndex]==1)
             {
-                return 0.ToString() + ';' + diecesState[myFieldIndex] + ';' + 1 + ';' + diecesState[enemyFieldIndex];
+                return "" + 0 + ';' + diecesState[myFieldIndex] + ';' + 1 + ';' + diecesState[enemyFieldIndex];
             }
             int los1 = 0;
             int los2 = 0;
@@ -130,7 +160,7 @@ namespace Server
             {
                 diecesState[enemyFieldIndex] = diecesState[myFieldIndex]-1;
                 diecesState[myFieldIndex] = 1;
-                fieldsState[myFieldIndex] = fieldsState[myFieldIndex];
+                fieldsState[enemyFieldIndex] = fieldsState[myFieldIndex];
             }
             else if (los1 < los2)
             {
@@ -166,15 +196,24 @@ namespace Server
                     Console.WriteLine("Someone connected!");
 
                     string key = client.Client.RemoteEndPoint.ToString().Split(':')[0];
-                    if (TimeOut.ContainsKey(key))
+                    if (timeOut.ContainsKey(key))
                     {
-                        TimeOut[key] = DateTime.Now;
+                        timeOut[key] = DateTime.Now;
                     }
                     else
                     {
                         Console.WriteLine("Someone new joined from {0}", key);
                         keys.Add(key);
-                        TimeOut.Add(key, DateTime.Now);                     
+                        timeOut.Add(key, DateTime.Now);
+                        for (int k = 0; k < avaible.Length; k++)
+                        {
+                            if (!avaible[k])
+                            {
+                                avaible[k] = true;
+                                numberOfPlayer.Add(key, k+1);
+                                break;
+                            }
+                        }                     
                     }
 
                     NetworkStream stream = client.GetStream();
@@ -185,10 +224,13 @@ namespace Server
                     data = Encoding.ASCII.GetString(bytes, 0, i);
                     byte[] buffer = new byte[256];
                     string message = "";
-                    if (data == "!")
+                    if (data == "!" && !isCreation)
                     {
-                        message = GenerateMap(3);
-
+                        message = GenerateMap(setMaxPlayers);
+                    }
+                    else if (data == "!" && isCreation)
+                    {
+                        message = ReturnMap(numberOfPlayer[key]);
                     }
                     else if (data == "#")
                     {
@@ -197,14 +239,42 @@ namespace Server
                     else if (data[0] == '*')
                     {
                         string[] tmp = data.Split(';');
-                        message = Respond(Convert.ToInt16(tmp[1]),Convert.ToInt32(tmp[2]));
+                        message = Respond(Convert.ToInt16(tmp[1]), Convert.ToInt32(tmp[2]));
+                    }
+                    else if (data =="?")
+                    {
+                        if (whoseTurn == numberOfPlayer[key])
+                        {
+                            message = "Y";
+                        }
+                        else
+                        {
+                            message = "N";
+                        }
+                    }
+                    else if (data == "&")
+                    {
+                        if (whoseTurn == avaible.Length)
+                        {
+                            whoseTurn = 1;
+                        }
+                        else
+                            whoseTurn++;
+                        message = "OK";
                     }
                     buffer = Encoding.ASCII.GetBytes(message);
 
 
 
-                    stream.Write(buffer, 0, buffer.Length);  
+                    stream.Write(buffer, 0, buffer.Length);
+                    stream.Close();
                     client.Close();
+
+                    //if (keys.Count >1)
+                    //{
+                    //    Console.WriteLine("test");
+                    //}
+
                 }
             }
             catch (SocketException e)
