@@ -13,11 +13,10 @@ namespace Server
     {
         static Dictionary<string, DateTime> TimeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
-        static Dictionary<string, Queue<string>> orders = new Dictionary<string, Queue<string>>();
-        static int whoseTurn = 1;
         static int[] fieldsState =new int[36];//ilość kostek na danym polu
         static int[] diecesState = new int[36];//przyporządkowanie gracza do pola
 
+        
         static void Manage()
         {
             while (true)
@@ -31,10 +30,11 @@ namespace Server
                         TimeSpan time = DateTime.Now - TimeOut[tmpKey];
                         if (time.TotalSeconds > 5)
                         {
+                            Console.WriteLine(keys.Count);
                             Console.WriteLine("Someone left");
                             TimeOut.Remove(tmpKey);
-                            orders.Remove(tmpKey);
                             keys.Remove(tmpKey);
+                            break;
                         }
                     }
                 }
@@ -63,8 +63,8 @@ namespace Server
 
 
             Random rand = new Random();
-            int division = numberOfFiels / players;
-            List<int> list = new List<int>();
+            int division = numberOfFiels / players;//liczba pól dla każdego gracza
+            List<int> list = new List<int>();// lista indeksów pól
             int[] index = new int[numberOfFiels];
             int player = 1;
             for (int i = 0; i < numberOfFiels; i++)
@@ -88,7 +88,7 @@ namespace Server
                 if (fieldsState[i]==0)
                 {
                     fieldsState[i] = player;
-                    diecesState[i] = rand.Next(1, 5);
+                    diecesState[i] = rand.Next(1, 7);
                 }
             }
             StringBuilder map = new StringBuilder();
@@ -100,7 +100,9 @@ namespace Server
                 map.Append(diecesState[i]);
                 map.Append(';');
             }
-
+            map.Append(keys.Count);
+            map.Append(';');
+            map.Append(players);
             return map.ToString();
             
         }
@@ -108,9 +110,9 @@ namespace Server
         public static string Respond(int myFieldIndex, int enemyFieldIndex)
         {
             Random rand = new Random();
-            if (fieldsState[myFieldIndex]==fieldsState[enemyFieldIndex] || diecesState[myFieldIndex]==1)
+            if (diecesState[myFieldIndex]==1)
             {
-                return null;
+                return 0.ToString() + ';' + diecesState[myFieldIndex] + ';' + 1 + ';' + diecesState[enemyFieldIndex];
             }
             int los1 = 0;
             int los2 = 0;
@@ -126,7 +128,7 @@ namespace Server
 
             if (los1 > los2)
             {
-                diecesState[enemyFieldIndex] = diecesState[myFieldIndex];
+                diecesState[enemyFieldIndex] = diecesState[myFieldIndex]-1;
                 diecesState[myFieldIndex] = 1;
                 fieldsState[myFieldIndex] = fieldsState[myFieldIndex];
             }
@@ -139,13 +141,12 @@ namespace Server
                 diecesState[enemyFieldIndex] = 1;
                 diecesState[myFieldIndex] = 1;
             }
-            return myFieldIndex.ToString() + ":" + fieldsState[myFieldIndex] + "," + diecesState[myFieldIndex] + ";" + enemyFieldIndex+":"+fieldsState[enemyFieldIndex]+","+diecesState[enemyFieldIndex];
-
+            return los1.ToString()+';'+diecesState[myFieldIndex] +';' + los2 + ';' + diecesState[enemyFieldIndex];
         }
 
         static void Main(string[] args)
         {
-            Thread thread = new Thread(Manage);
+            Thread thread = new Thread(Manage);//tworzenie wątku do czy gracz nie opuścił gry
             thread.Start();
 
             int port = 300;
@@ -157,7 +158,6 @@ namespace Server
             {
                 server = new TcpListener(IPAddress.Parse(GetLocalIPAddress()), port);
                 server.Start();
-                data = null;
 
                 while (true)
                 {
@@ -165,7 +165,7 @@ namespace Server
                     TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Someone connected!");
 
-                    string key = client.Client.RemoteEndPoint.ToString();
+                    string key = client.Client.RemoteEndPoint.ToString().Split(':')[0];
                     if (TimeOut.ContainsKey(key))
                     {
                         TimeOut[key] = DateTime.Now;
@@ -174,29 +174,36 @@ namespace Server
                     {
                         Console.WriteLine("Someone new joined from {0}", key);
                         keys.Add(key);
-                        TimeOut.Add(key, DateTime.Now);
-                        Queue<string> queue = new Queue<string>();//gracz dostaje nową kolejkę rozkazów
-                        orders.Add(key, queue);
+                        TimeOut.Add(key, DateTime.Now);                     
                     }
 
                     NetworkStream stream = client.GetStream();
 
+               
 
-
-
-                    int i;
-                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    int i = stream.Read(bytes, 0, bytes.Length);
+                    data = Encoding.ASCII.GetString(bytes, 0, i);
+                    byte[] buffer = new byte[256];
+                    string message = "";
+                    if (data == "!")
                     {
-                        data = Encoding.ASCII.GetString(bytes, 0, i);
+                        message = GenerateMap(3);
 
-
-
-                        byte[] msg = Encoding.ASCII.GetBytes(data.ToUpper());
-                        stream.Write(msg, 0, msg.Length);
-
-                        Console.WriteLine("Received\t{1}\t from: {0}", data, client.Client.RemoteEndPoint.ToString());
-                        Console.WriteLine("Sent:\t{0}", data.ToUpper());
                     }
+                    else if (data == "#")
+                    {
+                        message = "OK";
+                    }
+                    else if (data[0] == '*')
+                    {
+                        string[] tmp = data.Split(';');
+                        message = Respond(Convert.ToInt16(tmp[1]),Convert.ToInt32(tmp[2]));
+                    }
+                    buffer = Encoding.ASCII.GetBytes(message);
+
+
+
+                    stream.Write(buffer, 0, buffer.Length);  
                     client.Close();
                 }
             }

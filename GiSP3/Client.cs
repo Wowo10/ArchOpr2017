@@ -19,7 +19,7 @@ namespace DiceWars
             string responseData = null;
             try
             {
-                int port = 443;
+                int port = 300;
                 TcpClient client = new TcpClient(server, port);
 
                 byte[] data = Encoding.ASCII.GetBytes(message);
@@ -42,6 +42,10 @@ namespace DiceWars
             catch (SocketException e)
             {
                 Console.WriteLine("SocketException: {0}", e);
+            }
+            catch (System.IO.IOException e)
+            {
+                Console.WriteLine("IOException: {0}", e);
             }
             return responseData;
         }

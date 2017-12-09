@@ -14,7 +14,6 @@ namespace DiceWars
         private Client client;
         private bool turn;
         private Map map;
-        private string msg;
         private string response;
 
         public void SendAndReceive()
@@ -24,15 +23,8 @@ namespace DiceWars
                 Thread.Sleep(2000);
                 Console.WriteLine(Program.ip);
                 client = new Client();
-                if (msg != null)
-                {
-                    response=client.Connect(Program.ip, msg);
-                    msg = null;
-                }
-                else
-                {
-                    response=client.Connect(Program.ip, "#");
-                }
+                response = client.Connect(Program.ip, "#"); //do obsłużenia: odświeżanie mapy
+            
             }                     
         }
 
@@ -40,31 +32,20 @@ namespace DiceWars
 
         public GS_Gameplay() : base()
         {
+            Client client = new Client();
+            string tmpMap = client.Connect(Program.ip, "!");
+            int tmp = tmpMap.Length;
+            map = Map.read(tmpMap);            
             InitializeGui();
-            turn = true;
-
-            msg = null;
+            turn = true;// do obsłużenia przez serwer
 
             Thread th = new Thread(SendAndReceive);
             th.Start();
-
-            Random r = new Random();
-            int[] state = new int[36];
-            int[,] dieces = new int[6, 6];
-            for (int i = 0; i < 36; i++)
-            {
-                state[i]=r.Next(1, 4);              
-            }
-            for (int i = 0; i < 6; i++)
-            {
-                for (int j = 0; j < 6; j++)
-                {
-                    dieces[i, j] = r.Next(3, 6);
-                }
-            }
-            map = new Map(3,3,state,dieces);
-            //map = new Map();//new Map(response)
+         
             response = null;
+
+         
+
             mouseInteractionList.Add(map);
         }
 
