@@ -90,6 +90,12 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkModule\NetworkModule.csproj">
+      <Project>{3c0b91a5-d32b-4576-9634-3af8bd2f9e6c}</Project>
+      <Name>NetworkModule</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

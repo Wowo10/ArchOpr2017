@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using NetworkModule;
 
 namespace UdpServer
 {
@@ -39,13 +40,13 @@ namespace UdpServer
 
                 byte[] data = Receive();
 
-                string message = Decode(data);
+                Packet packet = Decode(data);
 
                 //Console.WriteLine("RECEIVED: "+message);
 
-                Verify(message);
+                Verify(packet);
 
-                Handle(message);
+                Handle();
 
                 CallBack();
             }
@@ -62,17 +63,19 @@ namespace UdpServer
 
         //probably in future we should user the <T> patterns
         //And obviously think about some standard of data, not String.
-        static string Decode(byte[] data)
+        static Packet Decode(byte[] data)
         {
-            return Encoding.ASCII.GetString(data);
+            return new Packet(data);
         }
 
         //Game Logic - basic rules - is valid target
-        static void Verify(string message)
+        static void Verify(Packet packet)
         {
+            //Console.WriteLine(NetworkModule.Temporary.kek);
+
             if (lobby)
             {
-                if (message == "join")
+                if (packet.GetPacketType == PacketType.JOIN)
                 {
                     Console.WriteLine("Received join from: " + remoteEp);
                     if (eps.Count < MAXPLAYERS)
@@ -82,35 +85,39 @@ namespace UdpServer
                         {
                             eps.Add(remoteEp);
 
-                            callback = "new player";
+                            callback = new Packet(PacketType.NEWPLAYER);
                             multicast = true;
                         }
                         else
                         {
-                            callback = "already joined";
+                            callback = new Packet(PacketType.FAIL);
                             multicast = false;
                         }
                     }
                     else
                     {
-                        callback = "room full";
+                        callback = new Packet(PacketType.FAIL);
                         multicast = false;
                     }
                 }
-                else if(message == "quit")
+                else if(packet.GetPacketType == PacketType.QUIT)
                 {
                     Console.WriteLine("Received quit from: "+remoteEp);
                     if (eps.Contains(remoteEp))
                     {
                         eps.Remove(remoteEp);
 
-                        callback = "player left";
+                        byte[] data = new byte[1];
+                        data[0] = (byte)eps.IndexOf(remoteEp);
+
+                        callback = new Packet(PacketType.PLAYERLEFT, data);
                         multicast = true;
                     }
                 }
                 else
                 {
-                    callback = "fuckup";
+                    callback = new Packet(PacketType.FAIL);
+                    Console.WriteLine("Spotted unexpected packet code!");
                     multicast = false;
                 }
             }
@@ -121,7 +128,7 @@ namespace UdpServer
         }
 
         //Game Logic - dice rolls etc
-        static void Handle(string message)
+        static void Handle()
         {
             if (lobby)
             {/*
@@ -148,12 +155,12 @@ namespace UdpServer
         }
 
         static bool multicast;
-        static string callback;
+        static Packet callback;
         static void CallBack()
         {
             Console.WriteLine("-----------SENDING-----------");
 
-            byte[] data = Encoding.ASCII.GetBytes(callback);
+            byte[] data = callback.ToByteArray();
 
             if (multicast)
             {

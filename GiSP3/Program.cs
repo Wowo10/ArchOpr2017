@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text;
+using NetworkModule;
 
 namespace DiceWars
 {
@@ -31,7 +32,7 @@ namespace DiceWars
         {
             connected = true;
             client.Connect(endpoint);
-            Send("join");
+            Send(new Packet(PacketType.JOIN));
         }
 
         public static void Disconnect()
@@ -39,24 +40,25 @@ namespace DiceWars
             Console.WriteLine("Disconnecting!");
             if (connected)
             {
-                Console.WriteLine("Rly");
                 connected = false;
-                SendNow("quit");
+                SendNow(new Packet(PacketType.QUIT));
                 client.Close();
             }
         }
 
-        public static void SendNow(string message)
+        public static void SendNow(Packet message)
         {
-            client.Send(Encoding.ASCII.GetBytes(message), message.Length);
+            byte[] temp = message.ToByteArray();
+            client.Send(temp, temp.Length);
         }
 
-        public async static void Send(string message)
+        public async static void Send(Packet message)
         {
             sending = Task.Run(() =>
             {
                 //Console.WriteLine("Sending: "+message+", to: "+endpoint);
-                client.Send(Encoding.ASCII.GetBytes(message), message.Length);
+                byte[] data = message.ToByteArray();
+                client.Send(data, data.Length);
             });
 
             if (sending.IsCompleted)
