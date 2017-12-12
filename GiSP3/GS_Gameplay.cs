@@ -10,40 +10,45 @@ namespace DiceWars
 {
     class GS_Gameplay : GameState
     {
-        private Button btnBack, btnEndOfTurn;
+        private Button btnBack, btnEndOfTurn, btnStart;
         private Client client;
         private bool turn;
         private Map map;
+        private bool exit;
 
         public void SendAndReceive()
         {
-            while (!Program.exit)
+            while (!Program.exit && !exit)
             {
-                Thread.Sleep(200);
+                Thread.Sleep(500);
                 Console.WriteLine(Program.ip);
                 client = new Client();
-                if (turn)
+                if (map != null)
                 {
-                    client.Connect(Program.ip, "#");
+                    string tmpMap = client.Connect(Program.ip, "!");
+                    Map.ReadMap(ref map, tmpMap);
+                    if (turn)
+                    {
+                        client.Connect(Program.ip, "#");
+                    }
+                    else
+                    {                                              
+                        if (client.Connect(Program.ip, "?") == "Y")
+                        {
+                            turn = true;
+                            btnEndOfTurn.setClickable(true);
+                            mouseInteractionList.Add(map);
+                        }                       
+                    }
                 }
                 else
                 {
-                    if (client.Connect(Program.ip, "?") == "Y")
+                    string tmpMap = client.Connect(Program.ip, "!");
+                    if (tmpMap != "no")
                     {
-                        turn = true;
-                        btnEndOfTurn.setClickable(true);
-                        //map = Map.ReadMap(client.Connect(Program.ip, "!"));
-                        Map.ReadMap(ref map,client.Connect(Program.ip,"!"));         
-                        mouseInteractionList.Add(map);
+                        map = Map.ReadMap(tmpMap);
                     }
-                    else
-                    {
-
-                        //map = Map.ReadMap(client.Connect(Program.ip, "!"));
-                        Map.ReadMap(ref map, client.Connect(Program.ip, "!"));
-                    }
-                                                                        
-                }                                                     
+                }                                              
             }                     
         }
 
@@ -53,15 +58,11 @@ namespace DiceWars
         {
             turn = false;
             Client client = new Client();
-            string tmpMap = client.Connect(Program.ip, "!");
-            int tmp = tmpMap.Length;
-            map = Map.ReadMap(tmpMap);            
+            map = null;            
             InitializeGui();
 
             Thread th = new Thread(SendAndReceive);
             th.Start();
-                  
-           // mouseInteractionList.Add(map);
         }
 
         private void InitializeGui()
@@ -82,6 +83,11 @@ namespace DiceWars
             btnEndOfTurn.ButtonText = "End Turn";
             btnEndOfTurn.setClickable(false);
 
+            btnStart = new Button(buttonWidth, buttonHeight);
+            btnStart.setPosition(new Vector2f(resx - buttonWidth - 20, resy - buttonHeight - 110));
+            btnStart.ButtonText = "Start";
+
+
             yourTurnCuteText = new CuteText("", new Vector2f(resx - 160, 60));
             yourTurnCuteText.setString("Your\r\nTurn");
 
@@ -90,6 +96,7 @@ namespace DiceWars
 
             mouseInteractionList.Add(btnBack);
             mouseInteractionList.Add(btnEndOfTurn);
+            mouseInteractionList.Add(btnStart);
         }
 
         public override void Update()
@@ -103,11 +110,22 @@ namespace DiceWars
 
             if (btnBack.isActive)
             {
+                exit = true;
                 stateaction = StateActions.POP;
                 //btnEndOfTurn.setClickable(false);               
             }
 
-     
+            if (btnStart.isActive)
+            {
+                if (btnStart.getClickable())
+                {
+                    string nothing = client.Connect(Program.ip, "$");
+                    btnStart.setClickable(false);
+                }
+                
+            }
+
+
             if (btnEndOfTurn.isActive)
             {
                 if(btnEndOfTurn.getClickable())
@@ -126,7 +144,11 @@ namespace DiceWars
             window.Draw(yourTurnCuteText);
             if (!turn)
                 window.Draw(notCuteText);
-            window.Draw(map);
+            if (map !=null)
+            {
+                window.Draw(map);
+            }
+            
         }
     }
 }

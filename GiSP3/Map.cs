@@ -342,29 +342,35 @@ namespace DiceWars
 
         public static void ReadMap(ref Map map,string textMap)
         {
-            string[] tmp = textMap.Split(';');
-            int myNumber = Convert.ToInt16(tmp[tmp.Length- 2]);
-            int players = Convert.ToInt16(tmp[tmp.Length-1]);
-            int[] state = new int[tmp.Length-2];
-            int[,] dieces = new int[6, 6];
-
-            int j = 0;
-            int k = 0;
-
-            for (int i = 0; i < tmp.Length-2; i++)
+            if (textMap != "no")
             {
-                string[] tmp2 = tmp[i].Split(':');
-                state[i] = Convert.ToInt32(tmp2[0]);
-                if (i - k > 5)
+
+                string[] tmp = textMap.Split(';');
+                int myNumber = Convert.ToInt16(tmp[tmp.Length - 2]);
+                int players = Convert.ToInt16(tmp[tmp.Length - 1]);
+                int[] state = new int[tmp.Length - 2];
+                int[,] dieces = new int[6, 6];
+
+                int j = 0;
+                int k = 0;
+
+                for (int i = 0; i < tmp.Length - 2; i++)
                 {
-                    j++;
-                    k += 6;                   
+                    string[] tmp2 = tmp[i].Split(':');
+                    state[i] = Convert.ToInt32(tmp2[0]);
+                    if (i - k > 5)
+                    {
+                        j++;
+                        k += 6;
+                    }
+                    dieces[j, i - k] = Convert.ToInt16(tmp2[1]);
+
                 }
-                dieces[j, i - k] = Convert.ToInt16(tmp2[1]);
-
+                if (map != null)
+                {
+                    map.UpdateMap(players, myNumber, state, dieces);
+                }
             }
-
-            map.UpdateMap(players, myNumber, state, dieces);
         }
 
         private void InitializeHex(int[,]dieces)

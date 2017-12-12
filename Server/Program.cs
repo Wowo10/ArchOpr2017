@@ -11,17 +11,19 @@ namespace Server
 {
     class Program
     {
-        private static int setMaxPlayers = 2;
+        private static int setMaxPlayers = 4;
         static Dictionary<string, DateTime> timeOut = new Dictionary<string, DateTime>();
         static List<string> keys = new List<string>();
+        static List<string> ListOfReadyPlayers = new List<string>();
         static bool[] avaible = new bool[setMaxPlayers];
         static Dictionary<string, int> numberOfPlayer = new Dictionary<string, int>();
         private static int mapSize = 36;
         static int[] fieldsState =new int[mapSize];//ilość kostek na danym polu
         static int[] diecesState = new int[mapSize];//przyporządkowanie gracza do pola
         private static int forHowManyPlayers = 0;
-        private static bool isCreation =false;
+        private static bool isCreation = false;
         private static int whoseTurn = 1;
+
         
         static void Manage()
         {
@@ -42,6 +44,11 @@ namespace Server
                             keys.Remove(tmpKey);
                             avaible[numberOfPlayer[tmpKey]-1] = false;
                             numberOfPlayer.Remove(tmpKey);
+                            if (ListOfReadyPlayers.Contains(tmpKey))
+                            {
+                                ListOfReadyPlayers.Remove(tmpKey);
+                            }
+                            isCreation = false;                 
                             break;
                         }
                     }
@@ -87,7 +94,7 @@ namespace Server
 
                     int los = rand.Next(list.Count);
                     fieldsState[list[los]] = player;
-                    diecesState[list[los]] = rand.Next(1,5);
+                    diecesState[list[los]] = rand.Next(4,8);
                     list.RemoveAt(los);
                 }
                 player++;
@@ -97,7 +104,7 @@ namespace Server
                 if (fieldsState[i]==0)
                 {
                     fieldsState[i] = player;
-                    diecesState[i] = rand.Next(1, 7);
+                    diecesState[i] = rand.Next(4, 8);
                 }
             }
             isCreation = true;
@@ -148,7 +155,7 @@ namespace Server
                 }
             }
 
-            int dieceToAdd = 3 * states.Count;
+            int dieceToAdd = 2 * states.Count;
 
             Random rand = new Random();
 
@@ -240,24 +247,33 @@ namespace Server
                                 numberOfPlayer.Add(key, k+1);
                                 break;
                             }
-                        }                     
+                        }
+                        isCreation = false;                                                               
                     }
 
-                    NetworkStream stream = client.GetStream();
-
-               
+                    NetworkStream stream = client.GetStream();              
 
                     int i = stream.Read(bytes, 0, bytes.Length);
                     data = Encoding.ASCII.GetString(bytes, 0, i);
                     byte[] buffer = new byte[256];
                     string message = "";
-                    if (data == "!" && !isCreation)
+                    if (data == "!")
                     {
-                        message = GenerateMap(setMaxPlayers);
-                    }
-                    else if (data == "!" && isCreation)
-                    {
-                        message = ReturnMap(numberOfPlayer[key]);
+                        if (ListOfReadyPlayers.Count == keys.Count && keys.Count>1 && keys.Count <5 && !isCreation)
+                        {
+                            message = GenerateMap(keys.Count);
+                            isCreation = true;
+                        }
+                        else
+                        {
+                            if (!isCreation)
+                            {
+                                message = "no";
+                            }
+                            else
+                                message = ReturnMap(numberOfPlayer[key]);
+                            
+                        }                        
                     }
                     else if (data == "#")
                     {
@@ -268,7 +284,7 @@ namespace Server
                         string[] tmp = data.Split(';');
                         message = Respond(Convert.ToInt16(tmp[1]), Convert.ToInt32(tmp[2]));
                     }
-                    else if (data =="?")
+                    else if (data == "?")
                     {
                         if (whoseTurn == numberOfPlayer[key])
                         {
@@ -283,13 +299,21 @@ namespace Server
                     {
                         AddDices(numberOfPlayer[key]);
 
-                        if (whoseTurn == avaible.Length)
+                        if (whoseTurn == keys.Count)
                         {
                             whoseTurn = 1;
                         }
                         else
                             whoseTurn++;
                         message = "OK";
+                    }
+                    else if (data == "$")
+                    {
+                        if (!ListOfReadyPlayers.Contains(key))
+                        {
+                            ListOfReadyPlayers.Add(key);
+                        }
+                        message = "ok";
                     }
                     buffer = Encoding.ASCII.GetBytes(message);
 
