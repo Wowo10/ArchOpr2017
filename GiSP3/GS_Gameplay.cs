@@ -19,7 +19,7 @@ namespace DiceWars
         {
             while (!Program.exit)
             {
-                Thread.Sleep(2000);
+                Thread.Sleep(200);
                 Console.WriteLine(Program.ip);
                 client = new Client();
                 if (turn)
@@ -32,13 +32,15 @@ namespace DiceWars
                     {
                         turn = true;
                         btnEndOfTurn.setClickable(true);
-                        map = Map.ReadMap(client.Connect(Program.ip, "!"));                        
+                        //map = Map.ReadMap(client.Connect(Program.ip, "!"));
+                        Map.ReadMap(ref map,client.Connect(Program.ip,"!"));         
                         mouseInteractionList.Add(map);
                     }
                     else
                     {
-                        Thread.Sleep(5000);
-                        map = Map.ReadMap(client.Connect(Program.ip, "!"));
+
+                        //map = Map.ReadMap(client.Connect(Program.ip, "!"));
+                        Map.ReadMap(ref map, client.Connect(Program.ip, "!"));
                     }
                                                                         
                 }                                                     
@@ -58,10 +60,7 @@ namespace DiceWars
 
             Thread th = new Thread(SendAndReceive);
             th.Start();
-         
-
-         
-
+                  
            // mouseInteractionList.Add(map);
         }
 
@@ -104,6 +103,7 @@ namespace DiceWars
 
             if (btnBack.isActive)
             {
+                stateaction = StateActions.POP;
                 //btnEndOfTurn.setClickable(false);               
             }
 

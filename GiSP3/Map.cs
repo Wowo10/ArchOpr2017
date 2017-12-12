@@ -279,6 +279,40 @@ namespace DiceWars
 
         }
 
+        
+
+        public void UpdateMap(int players, int myNumber, int[] state, int[,] dieces)
+        {
+
+            List<Color> colors = new List<Color>();
+            colors.Add(Color.Green);
+            colors.Add(Color.Magenta);
+            colors.Add(Color.Cyan);
+            colors.Add(Color.Red);
+            colors.Add(Color.Black);
+
+            Color mine = colors[myNumber - 1];
+
+            colors.RemoveAt(myNumber - 1);
+
+            int k = 0;
+            for (int i = 0; i < dieces.GetLength(0); i++)
+            {
+                for (int j = 0; j < dieces.GetLength(1); j++)
+                {
+                    if (dieces[i,j] != hex[k].DiceCount)
+                    {
+                        hex[k].DiceCount = dieces[i,j];
+                    }
+                    k++;
+                }
+            }
+
+            InitColors(players, mine, colors);
+            InitializePlayers(myNumber, players, state, mineColor, opponentColors);
+
+        }
+                
         public static Map ReadMap(string map)
         {
             string[] tmp = map.Split(';');
@@ -304,6 +338,33 @@ namespace DiceWars
             }
 
             return new Map(players,myNumber,state,dieces);
+        }
+
+        public static void ReadMap(ref Map map,string textMap)
+        {
+            string[] tmp = textMap.Split(';');
+            int myNumber = Convert.ToInt16(tmp[tmp.Length- 2]);
+            int players = Convert.ToInt16(tmp[tmp.Length-1]);
+            int[] state = new int[tmp.Length-2];
+            int[,] dieces = new int[6, 6];
+
+            int j = 0;
+            int k = 0;
+
+            for (int i = 0; i < tmp.Length-2; i++)
+            {
+                string[] tmp2 = tmp[i].Split(':');
+                state[i] = Convert.ToInt32(tmp2[0]);
+                if (i - k > 5)
+                {
+                    j++;
+                    k += 6;                   
+                }
+                dieces[j, i - k] = Convert.ToInt16(tmp2[1]);
+
+            }
+
+            map.UpdateMap(players, myNumber, state, dieces);
         }
 
         private void InitializeHex(int[,]dieces)

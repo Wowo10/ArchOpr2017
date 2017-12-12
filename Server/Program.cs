@@ -136,6 +136,33 @@ namespace Server
 
         }
 
+        private static void AddDices(int player)
+        {
+            List<int> states = new List<int>();
+
+            for (int i = 0; i < fieldsState.Length; i++)
+            {
+                if (fieldsState[i]==player)
+                {
+                    states.Add(i);
+                }
+            }
+
+            int dieceToAdd = 3 * states.Count;
+
+            Random rand = new Random();
+
+
+            while (dieceToAdd != 0)
+            {
+                int los = rand.Next(0, states.Count);
+                diecesState[states[los]]++;
+                dieceToAdd--;
+            }
+
+
+        }
+
 
         public static string Respond(int myFieldIndex, int enemyFieldIndex)
         {
@@ -252,8 +279,10 @@ namespace Server
                             message = "N";
                         }
                     }
-                    else if (data == "&")
+                    else if (data == "&" && whoseTurn == numberOfPlayer[key])
                     {
+                        AddDices(numberOfPlayer[key]);
+
                         if (whoseTurn == avaible.Length)
                         {
                             whoseTurn = 1;
@@ -269,11 +298,6 @@ namespace Server
                     stream.Write(buffer, 0, buffer.Length);
                     stream.Close();
                     client.Close();
-
-                    //if (keys.Count >1)
-                    //{
-                    //    Console.WriteLine("test");
-                    //}
 
                 }
             }
