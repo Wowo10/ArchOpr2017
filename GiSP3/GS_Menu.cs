@@ -10,7 +10,7 @@ namespace DiceWars
 {
     class GS_Menu : GameState
     {
-        private Button toLobby, toSettings, toCredits, exit, toGame;
+        private Button toLobby, toSettings, toCredits, exit;
         private CuteText dice;
 
         public GS_Menu() : base()
@@ -29,24 +29,20 @@ namespace DiceWars
             int buttonSpace = 20;
 
             toLobby = new Button(buttonWidth, buttonHeight);
-            toLobby.ButtonText = "toLobby";
+            toLobby.ButtonText = "Play";
 
             toSettings = new Button(buttonWidth, buttonHeight);
-            toSettings.ButtonText = "toSettings";
+            toSettings.ButtonText = "Settings";
 
             toCredits = new Button(buttonWidth, buttonHeight);
-            toCredits.ButtonText = "toCredits";
-
-            toGame = new Button(buttonWidth, buttonHeight);
-            toGame.ButtonText = "toGame";
+            toCredits.ButtonText = "Credits";
 
             exit = new Button(buttonWidth, buttonHeight);
-            exit.ButtonText = "Exit!";
+            exit.ButtonText = "Exit";
 
             mouseInteractionList.Add(toLobby);
             mouseInteractionList.Add(toSettings);
             mouseInteractionList.Add(toCredits);
-            mouseInteractionList.Add(toGame);
             mouseInteractionList.Add(exit);
 
             for (int i = 0; i < mouseInteractionList.Count; i++)
@@ -75,12 +71,6 @@ namespace DiceWars
             else if (toCredits.isActive)
             {
                 nextstate = States.GS_CREDITS;
-                stateaction = StateActions.PUSH;
-            }
-
-            else if (toGame.isActive)
-            {
-                nextstate = States.GS_GAMEPLAY;
                 stateaction = StateActions.PUSH;
             }
 
